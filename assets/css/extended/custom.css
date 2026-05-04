@@ -22,26 +22,52 @@
   top: 2rem;
 }
 
-/* ===== 首页博客卡片放大（仅在首页生效） ===== */
-.home-layout .post-entry {
-  padding: 1.8rem 2rem;
-  margin-bottom: 1.5rem;
+/* ===== 首页简洁文章列表 ===== */
+.home-post-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.home-layout .entry-header h2 {
-  font-size: 1.6rem;
-  line-height: 1.35;
+.home-post-list li {
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--border);
 }
 
-.home-layout .entry-content {
-  margin: 12px 0;
+.home-post-list li:last-child {
+  border-bottom: none;
+}
+
+.home-post-list li a {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  color: var(--secondary);
+  text-decoration: none;
   font-size: 1rem;
-  line-height: 1.7;
-  -webkit-line-clamp: 3;
+  line-height: 1.5;
+  transition: color 0.15s;
 }
 
-.home-layout .entry-footer {
-  font-size: 0.9rem;
+.home-post-list li a:hover {
+  color: var(--primary);
+}
+
+.home-post-date {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  color: var(--primary);
+  font-family: monospace;
+  min-width: 5.5em;
+  opacity: 0.65;
+}
+
+.home-post-title {
+  font-size: 1.05rem;
+  color: var(--primary);
+  font-weight: 500;
 }
 
 /* ===== 最近更新侧边栏 ===== */

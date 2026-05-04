@@ -52,11 +52,21 @@
 {{- end }}
 
 {{- if .IsHome }}
-{{- /* 首页：双栏布局 */}}
+{{- /* 首页：双栏布局，左侧为简洁列表 */}}
 <div class="home-layout">
   <div class="home-main">
-{{- end }}
-
+    <ul class="home-post-list">
+      {{- range $paginator.Pages }}
+      <li>
+        <a href="{{ .Permalink }}">
+          <span class="home-post-date">{{ .Date.Format "2006-01-02" }}</span>
+          <span class="home-post-title">{{ .Title }}</span>
+        </a>
+      </li>
+      {{- end }}
+    </ul>
+{{- else }}
+{{- /* 非首页：使用默认卡片样式 */}}
 {{- $term := .Data.Term }}
 {{- range $index, $page := $paginator.Pages }}
 
@@ -97,6 +107,7 @@
   {{- end }}
   <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .Permalink }}"></a>
 </article>
+{{- end }}
 {{- end }}
 
 {{- if .IsHome }}
