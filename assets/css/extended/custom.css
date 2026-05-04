@@ -17,25 +17,25 @@
   top: 2rem;
 }
 
-/* ===== 博客卡片放大 ===== */
-.home-main .post-entry {
+/* ===== 首页博客卡片放大（仅在首页生效） ===== */
+.home-layout .post-entry {
   padding: 1.8rem 2rem;
   margin-bottom: 1.5rem;
 }
 
-.home-main .entry-header h2 {
+.home-layout .entry-header h2 {
   font-size: 1.6rem;
   line-height: 1.35;
 }
 
-.home-main .entry-content {
+.home-layout .entry-content {
   margin: 12px 0;
   font-size: 1rem;
   line-height: 1.7;
   -webkit-line-clamp: 3;
 }
 
-.home-main .entry-footer {
+.home-layout .entry-footer {
   font-size: 0.9rem;
 }
 
