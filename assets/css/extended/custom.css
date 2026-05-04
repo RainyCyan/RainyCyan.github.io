@@ -22,24 +22,46 @@
   top: 2rem;
 }
 
-/* ===== 首页简洁文章列表 ===== */
-.home-post-list {
+/* ===== 首页博客卡片放大 ===== */
+.home-layout .post-entry {
+  padding: 1.8rem 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.home-layout .entry-header h2 {
+  font-size: 1.6rem;
+  line-height: 1.35;
+}
+
+.home-layout .entry-content {
+  margin: 12px 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  -webkit-line-clamp: 3;
+}
+
+.home-layout .entry-footer {
+  font-size: 0.9rem;
+}
+
+/* ===== 非首页（/blog/ 等）简洁列表样式 ===== */
+.section-post-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.home-post-list li {
+.section-post-list li {
   margin: 0;
   padding: 0;
   border-bottom: 1px solid var(--border);
 }
 
-.home-post-list li:last-child {
+.section-post-list li:last-child {
   border-bottom: none;
 }
 
-.home-post-list li a {
+.section-post-list li a {
   display: flex;
   align-items: baseline;
   gap: 1rem;
@@ -51,11 +73,11 @@
   transition: color 0.15s;
 }
 
-.home-post-list li a:hover {
+.section-post-list li a:hover {
   color: var(--primary);
 }
 
-.home-post-date {
+.section-post-date {
   flex-shrink: 0;
   font-size: 0.85rem;
   color: var(--primary);
@@ -64,7 +86,7 @@
   opacity: 0.65;
 }
 
-.home-post-title {
+.section-post-title {
   font-size: 1.05rem;
   color: var(--primary);
   font-weight: 500;
