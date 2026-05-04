@@ -1,3 +1,8 @@
+/* ===== 扩大页面宽度，给双栏布局留空间 ===== */
+:root {
+  --main-width: 960px;
+}
+
 /* ===== 首页双栏布局 ===== */
 .home-layout {
   display: flex;
@@ -6,7 +11,7 @@
 }
 
 .home-main {
-  flex: 2;
+  flex: 1;
   min-width: 0;
 }
 
