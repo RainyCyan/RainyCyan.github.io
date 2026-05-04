@@ -1,13 +1,13 @@
 ---
 title: 心中有B树
-date: 2026-05-04T09:46:00Z
+date: 2026-05-04T19:46:00Z
 tags: [数据库 & 存储]
 series: []
 featured: true
-description: "从磁盘I/O瓶颈出发，用三层递进的方式彻底理解B-Tree：为什么需要它、它的结构如何工作、以及插入/删除/查找的完整机制。"
+description: "B+树索引结构详解，包括页分裂、合并、聚簇索引与二级索引等核心概念"
 ---
 
-## 一分钟入门B-tree 【预告片】
+## 【1min了解B树】
 
 {{< collapse summary="👆 展开 TL;DR（1 分钟浏览）" openByDefault=true >}}
 
@@ -28,7 +28,7 @@ B+Tree 是实际数据库用的变体：内部节点只存 key（不存数据）
 
 ---
 
-## Theatrical Cut — 正文阅读
+## 【10min学会B树】
 
 {{< collapse summary="👆 展开 Theatrical Cut（5-10 分钟阅读）" >}}
 
@@ -165,7 +165,7 @@ delete(key):
 
 ---
 
-## Director's Cut — 附录与完整细节
+## 【30min带你完整装B】 
 
 {{< collapse summary="👆 展开 Director's Cut（>30 分钟深度阅读）" >}}
 

@@ -83,9 +83,10 @@
           {{- end }}
         </h2>
       </header>
-      {{- if (ne (.Param "hideSummary") true) }}
+      {{- $desc := .Description | default (.Summary | plainify | htmlUnescape) }}
+      {{- if $desc }}
       <div class="entry-content">
-        <p>{{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}</p>
+        <p>{{ $desc }}{{ if and (not .Description) .Truncated }}...{{ end }}</p>
       </div>
       {{- end }}
       {{- if not (.Param "hideMeta") }}
