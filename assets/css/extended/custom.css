@@ -6,7 +6,7 @@
 }
 
 .home-main {
-  flex: 1;
+  flex: 2;
   min-width: 0;
 }
 
@@ -64,9 +64,10 @@
 .recent-date {
   flex-shrink: 0;
   font-size: 0.75rem;
-  color: var(--tertiary);
+  color: var(--primary);
   font-family: monospace;
   min-width: 3em;
+  opacity: 0.65;
 }
 
 .recent-list .recent-title {
