@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Data Structure on My New Hugo Site</title>
+    <link>http://localhost:1313/tags/data-structure/</link>
+    <description>Recent content in Data Structure on My New Hugo Site</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 22 Apr 2026 09:06:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/data-structure/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>单调栈/单调队列及其应用场景分析</title>
+      <link>http://localhost:1313/blog/monotonic_stack/</link>
+      <pubDate>Wed, 22 Apr 2026 09:06:00 +0000</pubDate>
+      <guid>http://localhost:1313/blog/monotonic_stack/</guid>
+      <description>&lt;h1 id=&#34;单调栈单调队列&#34;&gt;单调栈/单调队列&lt;/h1&gt;
+&lt;p&gt;单调栈顾名思义，使用满足序列单调性的栈，递增/递减看从栈顶到栈底序列的单调性&lt;/p&gt;
+&lt;h2 id=&#34;应用场景&#34;&gt;应用场景&lt;/h2&gt;
+&lt;p&gt;先看应用场景再说单调栈的维护和使用&lt;/p&gt;
+&lt;p&gt;最直接的作用就是：能够在 O(N) 的时间复杂度下，返回所有元素中任意一个数左和右两边 距离最近 的首个比该数大或小的位置在哪。（左/右只要更改遍历方向即可）&lt;/p&gt;
+&lt;p&gt;维护的过程模拟（递增栈）：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;insert(x)&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;!&lt;/span&gt;stk.empty() &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; stk.top() &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; x)&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;// do something
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        stk.pop()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    stk.push(x)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;分析：整个模拟过程实际上就包含了两个操作，对于出栈元素，当前元素是右边最近最高位置；对于当前元素，入栈前（如果栈非空）下一个元素就是左边最近最高。每个元素入栈出栈一次，时间复杂度是O(n),空间复杂度是O(n)&lt;/p&gt;
+&lt;h2 id=&#34;例题&#34;&gt;例题&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.luogu.com.cn/problem/P5788&#34;&gt;单调栈模拟&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.luogu.com.cn/problem/P1901&#34;&gt;发射站&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.luogu.com.cn/training/238103&#34;&gt;集锦&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

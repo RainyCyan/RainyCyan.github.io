@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Tags on My New Hugo Site</title>
+    <link>http://localhost:1313/tags/</link>
+    <description>Recent content in Tags on My New Hugo Site</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 04 May 2026 09:46:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>数据库 &amp; 存储</title>
+      <link>http://localhost:1313/tags/%E6%95%B0%E6%8D%AE%E5%BA%93--%E5%AD%98%E5%82%A8/</link>
+      <pubDate>Mon, 04 May 2026 09:46:00 +0000</pubDate>
+      <guid>http://localhost:1313/tags/%E6%95%B0%E6%8D%AE%E5%BA%93--%E5%AD%98%E5%82%A8/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Data Structure</title>
+      <link>http://localhost:1313/tags/data-structure/</link>
+      <pubDate>Wed, 22 Apr 2026 09:06:00 +0000</pubDate>
+      <guid>http://localhost:1313/tags/data-structure/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>算法 &amp; 数据结构</title>
+      <link>http://localhost:1313/tags/%E7%AE%97%E6%B3%95--%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</link>
+      <pubDate>Mon, 20 Apr 2026 11:47:43 +0000</pubDate>
+      <guid>http://localhost:1313/tags/%E7%AE%97%E6%B3%95--%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</guid>
+      <description></description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>算法 &amp; 数据结构 on My New Hugo Site</title>
+    <link>http://localhost:1313/tags/%E7%AE%97%E6%B3%95--%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</link>
+    <description>Recent content in 算法 &amp; 数据结构 on My New Hugo Site</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 20 Apr 2026 11:47:43 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/%E7%AE%97%E6%B3%95--%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>leetcode刷题记录</title>
+      <link>http://localhost:1313/blog/leetcode/</link>
+      <pubDate>Mon, 20 Apr 2026 11:47:43 +0000</pubDate>
+      <guid>http://localhost:1313/blog/leetcode/</guid>
+      <description>&lt;p&gt;这是摘要
+​&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
