@@ -4,6 +4,7 @@ date: 2026-04-20T11:47:43Z
 tags: [算法 & 数据结构]
 series: []
 featured: true
+description: "图论 DFS/BFS 刷题记录，包含 dfs 回溯框架和 bfs 层序遍历模板"
 ---
 这是摘要
 ​
@@ -42,5 +43,4 @@ void dfs(参数) {
 
 
 ## bfs 与图
-
 

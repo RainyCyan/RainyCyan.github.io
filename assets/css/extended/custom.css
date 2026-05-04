@@ -1,0 +1,107 @@
+/* ===== 首页双栏布局 ===== */
+.home-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.home-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.home-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 2rem;
+}
+
+/* ===== 最近更新侧边栏 ===== */
+.recent-posts {
+  background: var(--entry);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 1.2rem;
+}
+
+.recent-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.8rem 0;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--primary);
+}
+
+.recent-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.recent-list li {
+  margin: 0;
+  padding: 0;
+}
+
+.recent-list li a {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  color: var(--secondary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  transition: color 0.15s;
+}
+
+.recent-list li a:hover {
+  color: var(--primary);
+}
+
+.recent-date {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--tertiary);
+  font-family: monospace;
+  min-width: 3em;
+}
+
+.recent-list .recent-title {
+  font-size: 0.875rem;
+  font-weight: 400;
+  margin: 0;
+  padding: 0;
+  border: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===== 响应式：小屏时侧边栏移到下方 ===== */
+@media (max-width: 768px) {
+  .home-layout {
+    flex-direction: column;
+  }
+
+  .home-sidebar {
+    width: 100%;
+    position: static;
+  }
+
+  .recent-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1rem;
+  }
+
+  .recent-list li {
+    flex: 0 0 auto;
+  }
+
+  .recent-list li a {
+    padding: 0.2rem 0;
+  }
+}

@@ -1,4 +1,71 @@
 baseURL = 'https://RainyCyan.github.io/'
-languageCode = 'en-us'
+languageCode = 'zh-cn'
 title = "RainyCyan's Blog"
 theme = "PaperMod"
+defaultContentLanguage = 'zh'
+
+[pagination]
+  pagerSize = 10
+
+enableInlineShortcodes = true
+enableGitInfo = true
+
+[params]
+  # 首页模式
+  profileMode = false
+  homeInfoParams = false
+
+  # 文章页
+  ShowToc = true
+  TocOpen = true
+  ShowReadingTime = true
+  ShowWordCount = true
+  ShowPostNavLinks = true
+  ShowCodeCopyButtons = true
+  ShowBreadCrumbs = true
+  ShowRssButtonInSectionTermList = true
+  ShowPageNums = true
+
+  # 日期格式
+  DateFormat = "2006-01-02"
+
+  # 主页显示的文章分类
+  mainSections = ["blog", "posts"]
+
+  # 禁用特殊第一篇
+  disableSpecial1stPost = true
+
+  # 隐藏作者
+  hideAuthor = true
+
+  # 使用Hugo内置目录
+  UseHugoToc = true
+
+  # 标签/分类页显示文章数
+  ShowTagCountInTerms = true
+  ShowCategoryCountInTerms = true
+
+  # 首页最近更新数量
+  recentPosts = 8
+
+# 导航菜单
+[languages]
+  [languages.zh]
+    languageName = "中文"
+    contentDir = "content"
+
+    [[languages.zh.menu.main]]
+      identifier = "posts"
+      name = "所有文章"
+      url = "/blog/"
+      weight = 1
+    [[languages.zh.menu.main]]
+      identifier = "tags"
+      name = "标签"
+      url = "/tags/"
+      weight = 2
+    [[languages.zh.menu.main]]
+      identifier = "categories"
+      name = "分类"
+      url = "/categories/"
+      weight = 3
