@@ -8,7 +8,7 @@ featured: true
 
 ## 一分钟入门B-tree 【预告片】
 
-<!-- {{< collapse summary="👆 展开 TL;DR（1 分钟浏览）" openByDefault=true >}} -->
+{{< collapse summary="👆 展开 TL;DR（1 分钟浏览）" openByDefault=true >}}
 
 **B-Tree 是为了解决磁盘 I/O 瓶颈而设计的数据结构。**
 
