@@ -1,22 +1,14 @@
 ---
-title: B-Tree Index 核心逻辑梳理
+title: 心中有B树
 date: 2026-05-04T09:46:00Z
 tags: [数据库 & 存储]
 series: []
 featured: true
 ---
-# B-Tree Index
 
-> 版本管理：TL;DR（1min）→ Theatrical Cut（5-10min）→ Director's Cut（>30min）
-> 点击展开每一层，按需深入。
+## 一分钟入门B-tree 【预告片】
 
-<!--more-->
-
----
-
-## TL;DR — 一分钟版本
-
-{{< collapse summary="👆 展开 TL;DR（1 分钟浏览）" openByDefault=true >}}
+<!-- {{< collapse summary="👆 展开 TL;DR（1 分钟浏览）" openByDefault=true >}} -->
 
 **B-Tree 是为了解决磁盘 I/O 瓶颈而设计的数据结构。**
 

@@ -9,14 +9,11 @@
     <lastBuildDate>Mon, 04 May 2026 09:46:00 +0000</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>B-Tree Index 核心逻辑梳理</title>
+      <title>心中有B树</title>
       <link>http://localhost:1313/blog/btree-index/</link>
       <pubDate>Mon, 04 May 2026 09:46:00 +0000</pubDate>
       <guid>http://localhost:1313/blog/btree-index/</guid>
-      <description>&lt;h1 id=&#34;b-tree-index&#34;&gt;B-Tree Index&lt;/h1&gt;
-&lt;blockquote&gt;
-&lt;p&gt;版本管理：TL;DR（1min）→ Theatrical Cut（5-10min）→ Director&amp;rsquo;s Cut（&amp;gt;30min）
-点击展开每一层，按需深入。&lt;/p&gt;&lt;/blockquote&gt;</description>
+      <description>&lt;h2 id=&#34;一分钟入门b-tree-预告片&#34;&gt;一分钟入门B-tree 【预告片】&lt;/h2&gt;</description>
     </item>
     <item>
       <title>博客标题</title>
