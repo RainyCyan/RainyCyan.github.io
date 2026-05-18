@@ -1,6 +1,6 @@
 /* ===== 扩大页面宽度 ===== */
 :root {
-  --main-width: 800px;
+  --main-width: 860px;
 }
 
 /* ===== 首页个人简介样式 ===== */
@@ -9,28 +9,38 @@
   margin-bottom: 2rem;
 }
 
-.home-info .entry-header h1 {
-  font-size: 1.6rem;
-  margin-bottom: 0.5rem;
-}
-
 .home-info .entry-content {
   font-size: 0.95rem;
   line-height: 1.7;
   color: var(--secondary);
 }
 
-.home-info .entry-content blockquote {
-  margin: 0.5rem auto;
-  padding: 0.3rem 1rem;
-  border-left: 3px solid var(--primary);
+/* 欢迎语标题加粗 */
+.home-info .entry-content p:first-child {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.4rem;
+}
+
+/* 名言左对齐 */
+.daily-quote {
+  text-align: left;
+  font-size: 0.88rem;
+  color: var(--secondary);
   opacity: 0.8;
-  max-width: 500px;
+  margin-top: 0.6rem;
+  padding: 0.4rem 0;
+  border-top: 1px solid var(--border);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  font-style: italic;
 }
 
 /* ===== 首页卡片式布局 ===== */
 .home-cards {
-  max-width: 60%;
+  max-width: 75%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;

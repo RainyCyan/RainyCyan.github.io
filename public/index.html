@@ -11,7 +11,7 @@
 <meta name="description" content="">
 <meta name="author" content="">
 <link rel="canonical" href="https://RainyCyan.github.io/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.515c9547d0f75a7c20c53b71cff522b90a318bc8294eb9a9216fc97328b7869e.css" integrity="sha256-UVyVR9D3WnwgxTtxz/UiuQoxi8gpTrmpIW/Jcyi3hp4=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.46f25628ea357e3beb346ab4420c7f52a811ce30d38ecfd74e89e7fd47375768.css" integrity="sha256-RvJWKOo1fjvrNGq0Qgx/UqgRzjDTjs/XTonn/Uc3V2g=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://RainyCyan.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://RainyCyan.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://RainyCyan.github.io/favicon-32x32.png">
@@ -83,16 +83,14 @@
   <meta property="og:site_name" content="RainyCyan&#39;s Blog">
   <meta property="og:title" content="RainyCyan&#39;s Blog">
   <meta property="og:description" content="👋 欢迎来到 RainyCyan 的博客
-这是我的技术学习笔记，主要关注数据库、存储引擎、向量检索、算法与数据结构等领域。
-“Talk is cheap. Show me the code.”">
+这是我的技术学习笔记，主要关注数据库、存储引擎、向量检索、算法与数据结构等领域。">
   <meta property="og:locale" content="zh">
   <meta property="og:type" content="website">
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="RainyCyan&#39;s Blog">
   <meta name="twitter:description" content="👋 欢迎来到 RainyCyan 的博客
-这是我的技术学习笔记，主要关注数据库、存储引擎、向量检索、算法与数据结构等领域。
-“Talk is cheap. Show me the code.”">
+这是我的技术学习笔记，主要关注数据库、存储引擎、向量检索、算法与数据结构等领域。">
 
 <script type="application/ld+json">
 {
@@ -170,8 +168,26 @@
   <div class="entry-content md-content">
     <p>👋 欢迎来到 RainyCyan 的博客</p>
 <p>这是我的技术学习笔记，主要关注<strong>数据库、存储引擎、向量检索、算法与数据结构</strong>等领域。</p>
-<blockquote>
-<p><em>&ldquo;Talk is cheap. Show me the code.&rdquo;</em></p></blockquote>
+<div id="daily-quote" class="daily-quote"></div>
+<script>
+const quotes = [
+  "\"Talk is cheap. Show me the code.\" — Linus Torvalds",
+  "\"Any fool can write code that a computer can understand. Good programmers write code that humans can understand.\" — Martin Fowler",
+  "\"First, solve the problem. Then, write the code.\" — John Johnson",
+  "\"It's not at all important to get it right the first time. It's vitally important to get it right the last time.\" — Andrew Hunt",
+  "\"The best programs are written so that computing machines can perform them quickly and so that human beings can understand them clearly.\" — Donald Knuth",
+  "\"Simplicity is the soul of efficiency.\" — Austin Freeman",
+  "\"Make it work, make it right, make it fast.\" — Kent Beck",
+  "\"Programs must be written for people to read, and only incidentally for machines to execute.\" — Harold Abelson",
+  "\"The most disastrous thing that you can ever learn is your first programming language.\" — Alan Kay",
+  "\"Measuring programming progress by lines of code is like measuring aircraft building progress by weight.\" — Bill Gates"
+];
+// 基于日期选择名言，每天固定一条
+const today = new Date();
+const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+const idx = dayOfYear % quotes.length;
+document.getElementById('daily-quote').textContent = '> ' + quotes[idx];
+</script>
 
   </div>
 </div>

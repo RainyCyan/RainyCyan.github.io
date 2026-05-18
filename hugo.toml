@@ -10,6 +10,11 @@ defaultContentLanguage = 'zh'
 enableInlineShortcodes = true
 enableGitInfo = true
 
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
 [params]
   # 首页模式 - 使用 homeInfoParams 显示个人简介
   profileMode = false
