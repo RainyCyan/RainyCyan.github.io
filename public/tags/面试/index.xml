@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>面试 on RainyCyan&#39;s Blog</title>
+    <link>https://RainyCyan.github.io/tags/%E9%9D%A2%E8%AF%95/</link>
+    <description>Recent content in 面试 on RainyCyan&#39;s Blog</description>
+    <generator>Hugo</generator>
+    <language>zh</language>
+    <lastBuildDate>Sun, 10 May 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://RainyCyan.github.io/tags/%E9%9D%A2%E8%AF%95/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>面试指北</title>
+      <link>https://RainyCyan.github.io/blog/interview/</link>
+      <pubDate>Sun, 10 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://RainyCyan.github.io/blog/interview/</guid>
+      <description>面试准备指南，涵盖自我介绍、项目介绍、竞赛经历等环节</description>
+    </item>
+  </channel>
+</rss>

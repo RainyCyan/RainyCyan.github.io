@@ -1,1 +1,19 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>数据库 &amp; 存储 on RainyCyan's Blog</title><link>https://RainyCyan.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93--%E5%AD%98%E5%82%A8/</link><description>Recent content in 数据库 &amp; 存储 on RainyCyan's Blog</description><generator>Hugo</generator><language>zh</language><lastBuildDate>Mon, 04 May 2026 09:46:00 +0000</lastBuildDate><atom:link href="https://RainyCyan.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93--%E5%AD%98%E5%82%A8/index.xml" rel="self" type="application/rss+xml"/><item><title>心中有B树</title><link>https://RainyCyan.github.io/blog/btree-index/</link><pubDate>Mon, 04 May 2026 09:46:00 +0000</pubDate><guid>https://RainyCyan.github.io/blog/btree-index/</guid><description>从磁盘I/O瓶颈出发，用三层递进的方式彻底理解B-Tree：为什么需要它、它的结构如何工作、以及插入/删除/查找的完整机制。</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>数据库 &amp; 存储 on RainyCyan&#39;s Blog</title>
+    <link>https://RainyCyan.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93--%E5%AD%98%E5%82%A8/</link>
+    <description>Recent content in 数据库 &amp; 存储 on RainyCyan&#39;s Blog</description>
+    <generator>Hugo</generator>
+    <language>zh</language>
+    <lastBuildDate>Mon, 04 May 2026 19:46:00 +0000</lastBuildDate>
+    <atom:link href="https://RainyCyan.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93--%E5%AD%98%E5%82%A8/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>心中有B树</title>
+      <link>https://RainyCyan.github.io/blog/bplustree-index/</link>
+      <pubDate>Mon, 04 May 2026 19:46:00 +0000</pubDate>
+      <guid>https://RainyCyan.github.io/blog/bplustree-index/</guid>
+      <description>数据库索引大厦的基石 —— B&#43; tree</description>
+    </item>
+  </channel>
+</rss>

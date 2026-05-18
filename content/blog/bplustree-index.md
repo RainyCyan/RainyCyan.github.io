@@ -4,12 +4,10 @@ date: 2026-05-04T19:46:00Z
 tags: [数据库 & 存储]
 series: []
 featured: true
-description: "B+树索引结构详解，包括页分裂、合并、聚簇索引与二级索引等核心概念"
+description: "数据库索引大厦的基石 —— B+ tree"
 ---
 
-## 【1min了解B树】
-
-{{< collapse summary="👆 展开 TL;DR（1 分钟浏览）" openByDefault=true >}}
+## 认识B树
 
 **B-Tree 是为了解决磁盘 I/O 瓶颈而设计的数据结构。**
 
@@ -24,7 +22,6 @@ B+Tree 是实际数据库用的变体：内部节点只存 key（不存数据）
 
 > 一句话：**用节点内的空间换树的高度，用树的高度换 I/O 次数。**
 
-{{< /collapse >}}
 
 ---
 

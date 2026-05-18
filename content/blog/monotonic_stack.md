@@ -1,7 +1,7 @@
 ---
 title: 单调栈/单调队列及其应用场景分析
 date: 2026-04-22T09:06:00Z
-tags: [data structure]
+tags: [算法 & 数据结构]
 series: []
 featured: true
 description: "单调栈/单调队列的 O(N) 算法原理与维护过程模拟，包含应用场景分析和例题"

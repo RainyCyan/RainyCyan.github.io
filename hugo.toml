@@ -11,9 +11,12 @@ enableInlineShortcodes = true
 enableGitInfo = true
 
 [params]
-  # 首页模式
+  # 首页模式 - 使用 homeInfoParams 显示个人简介
   profileMode = false
   homeInfoParams = false
+
+  # 首页个人简介内容（通过 _index.md 的 Content 显示）
+  homeInfoTitle = "RainyCyan's Blog"
 
   # 文章页
   ShowToc = true
@@ -48,6 +51,14 @@ enableGitInfo = true
   # 首页最近更新数量
   recentPosts = 8
 
+  # 数学公式支持
+  math = true
+
+  # 社交链接
+  socialIcons = [
+    {name = "github", url = "https://github.com/RainyCyan"},
+  ]
+
 # 导航菜单
 [languages]
   [languages.zh]
@@ -69,3 +80,13 @@ enableGitInfo = true
       name = "分类"
       url = "/categories/"
       weight = 3
+    [[languages.zh.menu.main]]
+      identifier = "search"
+      name = "搜索"
+      url = "/search/"
+      weight = 4
+    [[languages.zh.menu.main]]
+      identifier = "archives"
+      name = "归档"
+      url = "/archives/"
+      weight = 5

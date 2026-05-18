@@ -1,183 +1,120 @@
-/* ===== 扩大页面宽度，给双栏布局留空间 ===== */
+/* ===== 扩大页面宽度 ===== */
 :root {
-  --main-width: 960px;
+  --main-width: 800px;
 }
 
-/* ===== 首页双栏布局 ===== */
-.home-layout {
-  display: flex;
-  gap: 2rem;
-  align-items: flex-start;
-}
-
-.home-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.home-sidebar {
-  width: 280px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 2rem;
-}
-
-/* ===== 首页博客卡片放大 ===== */
-.home-layout .post-entry {
-  padding: 1.8rem 2rem;
-  margin-bottom: 1.5rem;
-}
-
-.home-layout .entry-header h2 {
+/* ===== 首页个人简介样式 ===== */
+.home-info .entry-header h1 {
   font-size: 1.6rem;
-  line-height: 1.35;
+  margin-bottom: 0.5rem;
 }
 
-.home-layout .entry-content {
-  margin: 12px 0;
-  font-size: 1rem;
+.home-info .entry-content {
+  font-size: 0.95rem;
   line-height: 1.7;
-  -webkit-line-clamp: 3;
+  color: var(--secondary);
 }
 
-.home-layout .entry-footer {
-  font-size: 0.9rem;
+.home-info .entry-content blockquote {
+  margin: 0.5rem 0;
+  padding: 0.3rem 1rem;
+  border-left: 3px solid var(--primary);
+  opacity: 0.8;
 }
 
-/* ===== 非首页（/blog/ 等）简洁列表样式 ===== */
-.section-post-list {
+/* ===== 文章列表样式（类似 Lilian Weng 风格） ===== */
+.post-list {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 1.5rem 0;
 }
 
-.section-post-list li {
+.post-list li {
   margin: 0;
   padding: 0;
-  border-bottom: 1px solid var(--border);
 }
 
-.section-post-list li:last-child {
-  border-bottom: none;
-}
-
-.section-post-list li a {
+.post-list li a {
   display: flex;
   align-items: baseline;
   gap: 1rem;
-  padding: 0.75rem 0;
+  padding: 0.6rem 0;
   color: var(--secondary);
   text-decoration: none;
   font-size: 1rem;
   line-height: 1.5;
   transition: color 0.15s;
+  border-bottom: none;
 }
 
-.section-post-list li a:hover {
+.post-list li a:hover {
   color: var(--primary);
 }
 
-.section-post-date {
+.post-date {
   flex-shrink: 0;
   font-size: 0.85rem;
   color: var(--primary);
-  font-family: monospace;
+  font-family: "SF Mono", "Fira Code", "Fira Mono", monospace;
   min-width: 5.5em;
-  opacity: 0.65;
+  opacity: 0.6;
 }
 
-.section-post-title {
-  font-size: 1.05rem;
-  color: var(--primary);
-  font-weight: 500;
-}
-
-/* ===== 最近更新侧边栏 ===== */
-.recent-posts {
-  background: var(--entry);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  padding: 1.2rem;
-}
-
-.recent-title {
+.post-title {
   font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 0.8rem 0;
-  padding-bottom: 0.6rem;
+  color: var(--primary);
+}
+
+/* ===== 文章页样式优化 ===== */
+.post-content {
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.post-content h2 {
+  font-size: 1.4rem;
+  margin-top: 2rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.3rem;
   border-bottom: 1px solid var(--border);
-  color: var(--primary);
 }
 
-.recent-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.post-content h3 {
+  font-size: 1.2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.6rem;
 }
 
-.recent-list li {
-  margin: 0;
-  padding: 0;
+.post-content p {
+  margin: 0.8rem 0;
 }
 
-.recent-list li a {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  padding: 0.4rem 0;
-  color: var(--secondary);
-  text-decoration: none;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  transition: color 0.15s;
+.post-content code {
+  font-size: 0.9em;
 }
 
-.recent-list li a:hover {
-  color: var(--primary);
+.post-content pre code {
+  font-size: 0.85rem;
 }
 
-.recent-date {
-  flex-shrink: 0;
-  font-size: 0.75rem;
-  color: var(--primary);
-  font-family: monospace;
-  min-width: 3em;
-  opacity: 0.65;
+/* ===== 图片样式 ===== */
+.post-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 1rem auto;
+  display: block;
 }
 
-.recent-list .recent-title {
-  font-size: 0.875rem;
-  font-weight: 400;
-  margin: 0;
-  padding: 0;
-  border: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ===== 响应式：小屏时侧边栏移到下方 ===== */
+/* ===== 响应式调整 ===== */
 @media (max-width: 768px) {
-  .home-layout {
+  .post-list li a {
     flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.8rem 0;
   }
 
-  .home-sidebar {
-    width: 100%;
-    position: static;
-  }
-
-  .recent-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.3rem 1rem;
-  }
-
-  .recent-list li {
-    flex: 0 0 auto;
-  }
-
-  .recent-list li a {
-    padding: 0.2rem 0;
+  .post-date {
+    min-width: auto;
   }
 }
