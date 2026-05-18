@@ -43,6 +43,7 @@
 {{- if .IsHome }}
 {{- $pages = where site.RegularPages "Type" "in" site.Params.mainSections }}
 {{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true"  }}
+{{- $pages = sort $pages "Lastmod" "desc" }}
 {{- end }}
 
 {{- $paginator := .Paginate $pages }}
@@ -58,7 +59,29 @@
 {{- end }}
 {{- end }}
 
-{{- /* 所有页面统一使用简洁列表样式（类似 Lilian Weng 风格） */}}
+{{- if .IsHome }}
+{{- /* 首页：卡片式布局，居中，60%宽度 */}}
+<div class="home-cards">
+  {{- range $paginator.Pages }}
+  <article class="home-card">
+    <a href="{{ .Permalink }}" class="home-card-link">
+      <h2 class="home-card-title">{{ .Title }}</h2>
+      {{- $desc := .Description | default (.Summary | plainify | htmlUnescape) }}
+      {{- if $desc }}
+      <p class="home-card-desc">{{ $desc }}{{ if and (not .Description) .Truncated }}...{{ end }}</p>
+      {{- end }}
+      <div class="home-card-meta">
+        <span class="home-card-updated">更新于 {{ .Lastmod.Format "2006-01-02" }}</span>
+        {{- with .Params.tags }}
+        <span class="home-card-tags">收录于 {{ delimit . " · " }}</span>
+        {{- end }}
+      </div>
+    </a>
+  </article>
+  {{- end }}
+</div>
+{{- else }}
+{{- /* 非首页（/blog/ 等）：简洁列表样式 */}}
 <ul class="post-list">
   {{- range $paginator.Pages }}
   <li>
@@ -69,6 +92,7 @@
   </li>
   {{- end }}
 </ul>
+{{- end }}
 
 {{- if gt $paginator.TotalPages 1 }}
 <footer class="page-footer">
