@@ -10,7 +10,7 @@
 <meta name="description" content="数据库索引大厦的基石 —— B&#43; tree">
 <meta name="author" content="">
 <link rel="canonical" href="https://RainyCyan.github.io/blog/bplustree-index/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.46f25628ea357e3beb346ab4420c7f52a811ce30d38ecfd74e89e7fd47375768.css" integrity="sha256-RvJWKOo1fjvrNGq0Qgx/UqgRzjDTjs/XTonn/Uc3V2g=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.e49ecfb455ea1722b45f2dadc0bb5f42776f1b2f47818bd00286165d926b7731.css" integrity="sha256-5J7PtFXqFyK0Xy2twLtfQndvGy9HgYvQAoYWXZJrdzE=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://RainyCyan.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://RainyCyan.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://RainyCyan.github.io/favicon-32x32.png">
@@ -220,21 +220,7 @@
     <div class="post-meta"><span title='2026-05-04 19:46:00 +0000 UTC'>2026-05-04</span>&nbsp;·&nbsp;<span>4 分钟</span>&nbsp;·&nbsp;<span>708 字</span>
 
 </div>
-  </header> <details class="toc"  open>
-    <summary accesskey="c" title="(Alt + C)">
-        <span class="title">目录</span>
-    </summary>
-
-    <div class="inner"><nav id="TableOfContents">
-  <ul>
-    <li><a href="#认识b树">认识B树</a></li>
-    <li><a href="#10min学会b树">【10min学会B树】</a></li>
-    <li><a href="#30min带你完整装b">【30min带你完整装B】</a></li>
-  </ul>
-</nav>
-    </div>
-</details>
-
+  </header> 
   <div class="post-content md-content"><h2 id="认识b树">认识B树<a hidden class="anchor" aria-hidden="true" href="#认识b树">#</a></h2>
 <p><strong>B-Tree 是为了解决磁盘 I/O 瓶颈而设计的数据结构。</strong></p>
 <p>核心思路：BST/AVL 每个节点只存 1 个 key，树高 O(log₂N)。N=10 亿时树高约 30，查一次要 30 次随机 I/O，太慢。B-Tree 让<strong>一个节点存多个 key</strong>，树高降到 O(logₘN)（m 是阶数），m=500 时树高不到 4。</p>

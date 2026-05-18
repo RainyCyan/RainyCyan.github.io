@@ -24,8 +24,8 @@ enableGitInfo = true
   homeInfoTitle = "RainyCyan's Blog"
 
   # 文章页
-  ShowToc = true
-  TocOpen = true
+  ShowToc = false
+  TocOpen = false
   ShowReadingTime = true
   ShowWordCount = true
   ShowPostNavLinks = true

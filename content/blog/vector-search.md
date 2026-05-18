@@ -1,10 +1,10 @@
 ---
-title: ANN与向量检索
+title: 当我们谈到向量检索时我们到底在谈些什么
 date: 2026-05-15T00:00:00Z
 tags: [向量检索]
 series: []
 featured: true
-description: "当我们使用向量表示事物的时候，语义信息"
+description: "世界上并不存在十全十美的东西，一切都是trade-off"
 ---
 
 # 向量检索
@@ -37,6 +37,8 @@ Filtering ANN
 ANN的发展方向
 
 RAG
+
+搜广推召回
 
 Agent Memory
 
