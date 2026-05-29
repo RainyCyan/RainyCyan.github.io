@@ -2,7 +2,7 @@
 title: 当我们谈到向量检索时我们到底在谈些什么
 date: 2026-05-15T00:00:00Z
 tags: [向量检索]
-series: []
+series: [向量检索]
 featured: true
 description: "世界上并不存在十全十美的东西，一切都是trade-off"
 ---
@@ -23,6 +23,12 @@ ANN的三个技术流派，确切的说只有两种：倒排，图和量化，�
 
 图
 
+nsw
+
+hnsw
+
+nsg
+
 ...... to be continued ......
 <!-- Graph
 
@@ -39,7 +45,14 @@ ANN的发展方向
 RAG
 
 搜广推召回
+检索库
+faiss
 
 Agent Memory
 
-VectorDB -->
+VectorDB
+Milvus
+
+
+
+ -->
