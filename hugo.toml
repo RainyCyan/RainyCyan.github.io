@@ -10,6 +10,9 @@ defaultContentLanguage = 'zh'
 enableInlineShortcodes = true
 enableGitInfo = true
 
+[frontmatter]
+  lastmod = [":git", "lastmod", "date", "publishDate"]
+
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
