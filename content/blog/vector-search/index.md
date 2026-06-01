@@ -159,4 +159,4 @@ Milvus
 ## 参考资源
 - [1] https://github.com/datawhalechina/what-is-vs/
 
-- [2]
+- [2] https://zhuanlan.zhihu.com/p/26580565803
