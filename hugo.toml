@@ -11,7 +11,7 @@ enableInlineShortcodes = true
 enableGitInfo = true
 
 [frontmatter]
-  lastmod = [":git", "lastmod", "date", "publishDate"]
+  lastmod = ["lastmod", "git", "date", "publishDate"]
 
 [markup]
   [markup.goldmark]
