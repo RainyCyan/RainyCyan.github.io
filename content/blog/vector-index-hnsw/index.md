@@ -52,7 +52,9 @@ NSW 的查询复杂度是 O(log n · log n)，但存在一个致命缺陷：**�
 
 ## HNSW：分层解决路由问题
 
-HNSW 由 Malkov & Yashunin 于 2018 年提出，核心创新是**引入分层结构**，将长距离导航与短距离精搜解耦。
+HNSW 由 Malkov & Yashunin 于 2018 年提出，核心创新有两个1.分层机制可以从入口点快速到达查询临近区域2.启发式选边策略多样化了邻居选择，让图的结构不至于太过区域聚集，实际上增强了全局连通性。
+
+> 实际上关于层次结构的必要性最近也引发了一些讨论，比如《Down with the Hierarchy: The ‘H’ in HNSW Stands for “Hubs”》
 
 ### 分层结构
 
@@ -154,3 +156,6 @@ HNSW 通过**分层图结构**将全局导航与局部精搜解耦，实现了 O
 - **分层**：解决 NSW 的枢纽节点问题
 - **启发式剪枝**：保证图的连通质量
 - **efConstruction / efSearch**：构建质量与查询精度的旋钮
+
+## 参考
+- https://www.pinecone.io/blog/hnsw-not-enough/
