@@ -3,15 +3,14 @@ languageCode = 'zh-cn'
 title = "RainyCyan's Blog"
 theme = "PaperMod"
 defaultContentLanguage = 'zh'
+enableInlineShortcodes = true
+enableGitInfo = true
 
 [pagination]
   pagerSize = 10
 
-enableInlineShortcodes = true
-enableGitInfo = true
-
 [frontmatter]
-  lastmod = ["lastmod", "git", "date", "publishDate"]
+  lastmod = [":git", "lastmod", "date", "publishDate"]
 
 [markup]
   [markup.goldmark]
