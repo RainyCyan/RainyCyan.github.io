@@ -13,20 +13,24 @@ draft: true
 <!--more-->
 
 ## 背景：为什么需要 Transformer
+- 长句子“记不住前面”
+- 计算必须按顺序
 
 
-## 整体架构
+## 注意力机制 Attention Mechanism
 
-
-## Self-Attention
+## Transformer架构
+![](transformer.png)
+## Self Attention
 
 
 ## Multi-Head Attention
 
 
-## Positional Encoding
+## 位置编码 Positional Encoding
 
 
+--- 
 ## Encoder & Decoder
 
 
@@ -37,3 +41,7 @@ draft: true
 
 
 ## 小结
+
+## 参考
+
+- [1] https://jalammar.github.io/illustrated-transformer/
