@@ -1,0 +1,8 @@
+# Hugo build artifacts (deployed by CI, not tracked)
+public/
+resources/
+.hugo_build.lock
+
+# Editor / OS
+.DS_Store
+*.swp
