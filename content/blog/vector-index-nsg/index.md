@@ -9,9 +9,9 @@ draft: false
 ShowToc: true
 TocOpen: true
 ---
-> 标题：Fast Approximate Nearest Neighbor Search With The Navigating Spreading-out Graph
+<!-- > 标题：Fast Approximate Nearest Neighbor Search With The Navigating Spreading-out Graph
 > 链接：https://www.vldb.org/pvldb/vol12/p461-fu.pdf
-> 代码：https://github.com/ZJULearning/nsg
+> 代码：https://github.com/ZJULearning/nsg -->
 
 <!--more-->
 

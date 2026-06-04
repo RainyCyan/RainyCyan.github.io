@@ -12,40 +12,39 @@ TocOpen: true
 
 ## 前言
 
-<!-- 写在这里：为什么聊 Skills？它解决了哪些 prompt / tool / MCP 都没解决好的问题？ -->
+写在这里：为什么聊 Skills？它解决了哪些 prompt / tool / MCP 都没解决好的问题？
 
 
 ## 什么是 Agent Skill
 
-<!-- Skill 的定义、与 prompt / tool / subagent / MCP 的边界 -->
+Skill 的定义、与 prompt / tool / subagent / MCP 的边界
 
 
 ## Skill 的组成
 
-<!-- frontmatter（name / description / triggers）+ 正文指令 + 可选的脚本资源 -->
+frontmatter（name / description / triggers）+ 正文指令 + 可选的脚本资源
 
 
 ## Skill 的加载与触发
 
-<!-- 何时被发现、何时被注入上下文、触发条件如何写得准 -->
+何时被发现、何时被注入上下文、触发条件如何写得准
 
 
 ## 设计原则
 
-<!-- 单一职责、可组合、可发现、可降级；写 description 的几个反例 -->
+单一职责、可组合、可发现、可降级；写 description 的几个反例
 
 
 ## 案例
 
-<!-- 选 1~2 个实际 skill 拆解：触发场景 / 提示词 / 配套脚本 -->
+选 1~2 个实际 skill 拆解：触发场景 / 提示词 / 配套脚本
 
-![alt 文本：示意图客观描述](skill-architecture.png)
-*图 1：Skill 在 Agent 体系中的位置*
+
 
 
 ## 与 MCP / Tool 的关系
 
-<!-- 三层心智模型：Tool 提供能力，MCP 提供能力的传输协议，Skill 提供使用能力的"知识" -->
+三层心智模型：Tool 提供能力，MCP 提供能力的传输协议，Skill 提供使用能力的"知识"
 
 
 ## 局限与坑

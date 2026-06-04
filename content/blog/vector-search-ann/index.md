@@ -42,11 +42,17 @@ ANN 的底盘,这一层决定了上面所有支线的性能上限。三大族:�
   - 开源:[google-research/scann](https://github.com/google-research/scann)
 - **SPANN / SPFresh** — Microsoft, NeurIPS 2021 / SOSP 2023。SSD 友好的聚类索引,SPFresh 加入了增量更新。
 
+- 百度Puck/Tinker
+
 ### 量化(Quantization)
 
 - **PQ / OPQ** — *Product Quantization for Nearest Neighbor Search*, Jégou et al., TPAMI 2011。所有现代向量库的底层压缩基本都从这一脉演化出来。
+  - 开源:[facebookresearch/faiss](https://github.com/facebookresearch/faiss)
+- **Residual Quantization / Additive Quantization** — *Additive Quantization for Extreme Low Bit Rates*, Babenko & Lempitsky, CVPR 2014。RQ 的递进改进。
 - **IVF-PQ hybrids** — FAISS 里默认的十亿规模配置。
-
+- **IRVQ** — *Improved Residual Vector Quantization*, arXiv 2015。在 RQ 基础上的分析与优化。
+- **RaBitQ** — *Re-thinking the Value of Labels for Improving Class-Imbalanced Learning*, Gao & Long, SIGMOD 2024。D-bit 编码的无偏距离估计器,具有 O(1/√D) 阶的理论误差界。SIMD/bitwise 加速,PQ 族的理论型替代方案。
+- **Practical & Asymptotically Optimal Quantization** — SIGMOD 2025。扩展 RaBitQ 至灵活的每维 bit 数,保留理论保证。
 ## 2. 动态 / 流式 ANN
 
 传统 HNSW 这种"批量构建"的思路在生产里有硬伤——数据持续来、需要删除、需要 ACID。这条支线在过去三年是 SIGMOD/VLDB 的高频赛道。
@@ -66,12 +72,19 @@ ANN 的底盘,这一层决定了上面所有支线的性能上限。三大族:�
 
 这一支线相对偏冷,但在大规模在线服务里收益很高:同样的索引,在不同查询分布下用不同搜索策略,能省一大半算力。
 
-- **Query Distribution-aware ANN** — VLDB / SIGMOD 工作负载感知索引论文。
-- **Query-adaptive ANN Search** — 自适应 beam search / efSearch 在线调参。
-- **Query Routing Systems** — Google / Microsoft 内部检索路由系统(SIGIR / WWW 系统 track)。
-- **Embedding 语义缓存** — Redis 系向量缓存模式;Pinecone 的缓存层。
-- **多租户 ANN** — VLDB / ICDE 多租户向量检索系统;Azure AI Search、Vespa、Pinecone。
-- **Query Workload Modeling** — SIGMOD/VLDB 工作负载预测论文。
+### 查询驱动的索引优化
+
+- **Query Distribution-aware ANN** — VLDB / SIGMOD 工作负载感知索引论文。利用倾斜的查询分布加速搜索。
+- **Query-adaptive ANN Search** — 自适应参数调优。根据查询特征在线调整 efSearch(HNSW)、beam width 等搜索参数。
+- **Auto-tuning 系统** — DiskANN 系统实现中内置的参数自适应机制。
+
+### 系统层面的负载感知
+
+- **Query Routing / Request Dispatching** — Google / Microsoft 内部大规模检索路由系统(SIGIR / WWW 系统 track)。不同查询路由到优化过的索引副本。
+- **Embedding 语义缓存** — Redis 系向量缓存模式(热点向量);Pinecone 的缓存层。基于语义相似度的缓存一致性。
+- **多租户隔离与资源调度** — VLDB / ICDE 多租户向量检索系统;Azure AI Search、Vespa、Pinecone 等产品的隔离方案。每个租户的数据/参数独立优化。
+- **Workload Drift Detection** — embedding 分布漂移监控(系统文献)。检测数据/查询分布变化,触发索引重建。
+- **Query Workload Modeling** — SIGMOD/VLDB 工作负载预测论文。基于历史查询预测未来模式。
 
 ## 4. 过滤 / 混合 / 结构化 ANN
 
@@ -118,6 +131,18 @@ ANN 的底盘,这一层决定了上面所有支线的性能上限。三大族:�
 
 ANN 这条线对硬件特别敏感——SIMD、GPU tensor core、SSD 顺序读、NVLink 这些硬件特性都直接决定算法选型。
 
+### ANN 扫描与内核加速
+
+距离计算与暴力扫描这一层对硬件的利用率直接决定整体吞吐。
+
+- **ADC (Asymmetric Distance Computation)** — PQ/量化系列的基础概念,在编码空间与原始向量间的非对称距离计算,是现代 ANN 系统的标准优化。
+- **FAISS SIMD 加速** — Meta。AVX2/AVX512 在距离计算上的向量化优化。FAISS 论文: *Billion-scale Similarity Search with GPUs*, TPAMI 2017。
+  - 开源:[facebookresearch/faiss](https://github.com/facebookresearch/faiss)
+- **ScaNN 量化加速** — Google Research, ICML 2020。各向异性量化配合快速扫描内核。
+  - 开源:[google-research/scann](https://github.com/google-research/scann)
+- **GPU 距离内核** — NVIDIA CAGRA、cuVS 中的 SIMD-on-GPU 优化。
+  - 开源:[rapidsai/cuvs](https://github.com/rapidsai/cuvs)
+
 ### GPU ANN
 
 - **CAGRA** — NVIDIA, ICDE 2024。GPU 图索引。
@@ -163,10 +188,18 @@ ANN 的下游应用层。embedding 模型本身从单模态走向多模态,且 a
 
 - NeurIPS / ICLR embedding 鲁棒性文献。
 
-### Agent Memory 检索
+### Agent Memory 与检索增强系统
 
-- **MemGPT** — arXiv 2023。
-- **LangGraph / LangChain memory 系统** — 工业 OSS。
+Agent 对 memory 检索的需求与传统 RAG 不同:需要细粒度的语义分层、高频更新、跨对话持久化。这条线已经成为 LLM 应用的标配。
+
+- **MemGPT** — *MemGPT: Towards LLMs as Operating Systems*, arXiv 2023, UC Berkeley。操作系统级别的多层 memory 架构(context window / external storage / 分级 retrieval)。
+- **LangChain Memory 系统** — 工业 OSS,提供 buffer/vector/summary 多种 memory 模块。
+  - 开源:[langchain-ai/langchain](https://github.com/langchain-ai/langchain)
+- **LangGraph** — LangChain 的图计算框架,支持 memory 持久化与状态管理。
+  - 开源:[langchain-ai/langgraph](https://github.com/langchain-ai/langgraph)
+- **Vector DB as Memory Backend** — 向量数据库(Pinecone、Weaviate、Qdrant)作为 LLM 应用的 memory 层。具有语义检索、ACID、增量更新的特性。
+- **Mem0** — 工业化的 memory 层抽象,在向量 DB + LLM 之上构建。
+  - 开源:[mem0ai/mem0](https://github.com/mem0ai/mem0)
 
 ### Retrieval Foundation Models(萌芽期)
 

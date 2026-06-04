@@ -10,6 +10,26 @@ ShowToc: true
 TocOpen: true
 ---
 
+---
+todo: 这里增加对于DiskANN系列文章包括DiskANN/FreshDiskANN/FilterDiskANN的描述
+
+大规模向量(billion+)，HNSW/NSG这种最初设计全放到内存的索引单机无法处理（因为billion级别向量普通单机RAM甚至连图结构都放不下了）。
+
+diskann把图结构和原始向量都放到SSD上了,vamana图放宽了nsg裁边的限制（有什么好处）；
+
+图结构直接放到SSD上面有个问题是，因为每次IO都是随机访问，无法去做有效的prefetch，关键问题就是能不能最小化平均路径长度（但其实这也是内存型图ANN在做的事），或者工程上能不能用并行加速检索掩盖损失也行。核心目标就是减少IO次数
+
+beam search时并行扩展：如何处理竞争的问题？
+批量IO
+
+1. Vamana graph设计目标：1.最小化图直径，最小化IO跳数
+    Vamana支持子图合并，可以分布式构建
+
+2. beam search：把多跳邻居都拿到RAM
+3. PQ+: 减小在过滤候选过程的计算量，同时PQ后的vector可以放到RAM中（这个实际上依赖一个观察：在图搜索的中间阶段，我们其实不太需要精确的距离计算，只需要方向没错就行）
+4. 
+---
+
 DiskANN 把图索引搬到 SSD 之后，每跳一次都要随机 IO 一次。要让 recall@100 ≥ 0.9，`ef_search` 通常得开到 100 以上，这意味着一次查询要打 100+ 次 4KB 的随机读。后续几年所有所谓「DiskANN 优化」基本都在围绕这一点做文章——要么降 IO 次数，要么降单次 IO 的浪费，要么把那些被 IO 拖慢的计算重新利用起来。
 
 <!--more-->
@@ -165,3 +185,4 @@ ANN On Disk 这两年的工作密度很高，但本质上都还是在排列组�
 - BAM. ICDE 2026.
 - SAQ：基于方差长尾的混合比特 RaBitQ。SIGMOD R6 2026.
 - FreshDiskANN：DiskANN 上的 update 机制。
+- https://zhuanlan.zhihu.com/p/655865563
