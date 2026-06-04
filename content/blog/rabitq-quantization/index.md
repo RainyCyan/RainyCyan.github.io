@@ -60,7 +60,7 @@ $$o = \frac{o_r - c}{\|o_r - c\|}$$
 
 **原始码本**：构造由 D 维二值向量组成的超立方体顶点集合：
 
-$$C = \left\{ x \in \{-\frac{1}{\sqrt{D}}, +\frac{1}{\sqrt{D}}\}^D \right\}$$
+$$C = \left\{ x \in \left\{-\frac{1}{\sqrt{D}}, +\frac{1}{\sqrt{D}}\right\}^D \right\}$$
 
 所有码字都是单位向量，理论上均匀分布在球面上。
 
@@ -106,6 +106,9 @@ $$\langle q, o \rangle \approx \frac{\langle \bar{o}, q \rangle}{\langle \bar{o}
 
 **几何直觉**：在 $o$ 和 $q$ 张成的二维平面上建立坐标系。由于 $\bar{o}$ 是随机旋转后的量化向量，它在垂直于 $o$ 方向的投影期望为 0（高维随机向量几乎必然正交于任何固定的低维子空间）。因此分母中的交叉项可以被忽略。
 
+![无偏估计的几何直观：展示了量化向量与原始向量在二维平面的投影关系](fig1.png)
+*图 1：无偏估计的几何直观*
+
 **误差界**（理论保证）：
 
 $$\left|\frac{\langle \bar{o}, q \rangle}{\langle \bar{o}, o \rangle} - \langle o, q \rangle\right| \leq O\left(\frac{1}{\sqrt{D}}\right)$$
@@ -129,6 +132,11 @@ $$\bar{q}_u[i] = \frac{q'[i] - v_l}{\Delta} + u_i$$
 $$\langle \bar{x}, \bar{q} \rangle = \frac{1}{D}\left(4 \langle \bar{x}_b, \bar{q}_u \rangle - 2 \sum \bar{x}_b - 2 \sum \bar{q}_u + D\right)$$
 
 其中 $\bar{x}_b$ 是二进制码，$\bar{q}_u$ 是量化后的查询向量。这可以用 SIMD 指令或 popcount 等底层操作高效实现。
+
+> 对query向量做4bit/8bit量化可以用simd指令大大加速计算
+
+![RaBitQ量化流程示意图，展示从原始向量到量化向量的转换过程](fig2.png)
+*图 2：RaBitQ 量化流程示意图*
 
 ## 重排与候选剪枝
 
