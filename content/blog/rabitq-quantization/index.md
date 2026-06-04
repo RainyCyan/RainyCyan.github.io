@@ -60,7 +60,9 @@ $$o = \frac{o_r - c}{\|o_r - c\|}$$
 
 **原始码本**：构造由 D 维二值向量组成的超立方体顶点集合：
 
-$$C = \left\{ x \in \left\{-\frac{1}{\sqrt{D}}, +\frac{1}{\sqrt{D}}\right\}^D \right\}$$
+$$C = \{x \in \{-\frac{1}{\sqrt{D}}, +\frac{1}{\sqrt{D}}\}^D\}$$ 
+
+
 
 所有码字都是单位向量，理论上均匀分布在球面上。
 
@@ -135,8 +137,8 @@ $$\langle \bar{x}, \bar{q} \rangle = \frac{1}{D}\left(4 \langle \bar{x}_b, \bar{
 
 > 对query向量做4bit/8bit量化可以用simd指令大大加速计算
 
-![RaBitQ量化流程示意图，展示从原始向量到量化向量的转换过程](fig2.png)
-*图 2：RaBitQ 量化流程示意图*
+![4bit 量化后的query和1bit 量化向量做simd运算](fig2.png)
+*图 2：sq4 query和1bit做批量运算*
 
 ## 重排与候选剪枝
 
