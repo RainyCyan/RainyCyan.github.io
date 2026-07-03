@@ -8,6 +8,7 @@ description: "从 Attention is All You Need 出发，拆解 Transformer 的结�
 draft: false
 ---
 ## 前言
+> 我曾经找好朋友豪哥询问是否有transformer的入门文章，他建议我说与其看文章不如用ai辅助从single-head attention-multi-head->transformer手搓一遍，我体验下来确实感觉比看文章理解的更加深入。
 
 我对深度学习几乎是零基础。与其按照深度学习的发展脉络从最基础的神经网络学起，不如直接把 Transformer 作为一个”锚点”，向前和向后逐步探索。这篇文章就是这个过程的记录。
 
@@ -59,3 +60,5 @@ Transformer 用 **注意力机制**（Attention）建模所有 token 之间的�
 ## 参考
 
 - [1] https://jalammar.github.io/illustrated-transformer/
+
+### single-head attention
