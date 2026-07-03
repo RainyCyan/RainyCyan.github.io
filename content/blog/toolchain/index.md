@@ -14,6 +14,29 @@ TocOpen: true
 
 ### 基础工具
 
+#### Linux常用工具/命令合集
+
+> note: 这里作为收录的临时集中地，如果有比较大块的内容，会独立出去作为单独小结
+
+- **ls**
+- **top/htop**
+- **curl/wget**
+- **ssh/scp/rsync**
+- **df/du**
+- **mount/umount**
+- **tar/gzip/zip**
+- **cat/less/head/tail**
+- **awk**
+- **sort/uniq/wc**
+- **chmod**
+- **alias**
+- **man/info/tldr**
+- **history**
+- **grep**
+- **sed**
+
+#### vim
+
 #### tmux
 
 tmux 是一个终端多路复用器，用于在单个终端窗口中管理多个会话。即使断开连接，会话也不会丢失。
