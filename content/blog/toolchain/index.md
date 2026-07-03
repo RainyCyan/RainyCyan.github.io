@@ -4,13 +4,19 @@ date: 2026-06-23T00:00:00+08:00
 tags: [工具链]
 series: []
 featured: false
-description: ""
+description: "如果你想系统了解开发的常用Tools包，请系统学习missing-semester,这是你最不会后悔的一堂课程"
 draft: true
 ShowToc: true
 TocOpen: true
 ---
 
 ## 工具清单
+### SHELL
+> TODO: short intro, 需要和现在的cli关联
+与可视化界面相比，shell是更原生的计算机交互接口，这也是现如今的agent为什么通通基于shell去做TUI的原因。
+
+事实上存在很多shell,比如windows的cmd,powershell,linux的bash,zsh等。我们不会讲解windows上的powershell,事实上，powershell做的是一坨shit,这不是比喻。
+
 
 ### 基础工具
 
