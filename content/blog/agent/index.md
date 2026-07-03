@@ -9,3 +9,11 @@ draft: true
 ShowToc: true
 TocOpen: true
 ---
+
+在这里列举一下截止现在的主流Agent:
+- Claude Code
+- OpenClaw
+- OpenCode
+- Hermes
+- DeepAgents/DeerFlow
+
