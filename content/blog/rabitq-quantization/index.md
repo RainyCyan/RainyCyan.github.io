@@ -1,5 +1,5 @@
 ---
-title: RaBitQ：具有理论误差界的向量量化
+title: RaBitQ及其衍生工作
 date: 2026-06-04T10:00:00+08:00
 tags: [向量搜索, 量化, 近似最近邻, RaBitQ]
 series: [向量搜索]
@@ -20,7 +20,7 @@ TocOpen: true
 
 ## 问题背景
 
-在高维向量的近似最近邻（ANN）搜索中，距离计算是性能瓶颈。距离计算和比较往往占据整个搜索时间的 80%-90%。
+在高维向量的近似最近邻（ANN）搜索中，距离计算是性能瓶颈。距离计算和比较往往占据整个搜索时间的 80%-90%/comment,这是针对pure-memory的场景来说的。
 
 虽然 PQ 及其变体已经提供了有效的压缩和加速方案，但它们存在两个根本性的问题：
 
@@ -183,4 +183,7 @@ RaBitQ 已被多个向量数据库和搜索系统采用：
 - [RaBitQ 库文档和推导](https://github.com/VectorDB-NTU/RaBitQ-Library/tree/main/docs)
 - [作者技术博客](https://dev.to/gaoj0017/quantization-in-the-counterintuitive-high-dimensional-space-4feg)
 - [Elastic RaBitQ 解读](https://www.elastic.co/search-labs/blog/rabitq-explainer-101)
+https://www.elastic.co/search-labs/blog/rabitq-explainer-101
+https://www.elastic.co/search-labs/blog/bit-vectors-elasticsearch-bbq-vs-pq
+https://www.elastic.co/search-labs/blog/better-binary-quantization-lucene-elasticsearch
 - [Johnson-Lindenstrauss 引理](https://www.spaces.ac.cn/archives/8679/)

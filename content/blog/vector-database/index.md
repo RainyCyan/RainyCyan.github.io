@@ -7,3 +7,8 @@ featured: true
 description: ""
 draft: false
 ---
+分类与梯队划分
+- Pipecone,Qdrant,Weaviate
+- Mivus,Vespa
+- Chroma,Faiss
+- Elasticsearch/OpenSearch,MongoDB,pgvector
