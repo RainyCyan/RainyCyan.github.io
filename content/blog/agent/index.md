@@ -1,6 +1,7 @@
 ---
 title: Agent
-date: 2026-06-30T15:00:00+08:00
+date: 2026-08-05T15:00:00+08:00
+lastmod: 2026-08-05
 tags: [Agent, LLM, Git, Workflow]
 series: []
 featured: false
