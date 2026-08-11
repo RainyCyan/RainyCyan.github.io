@@ -43,12 +43,8 @@
 {{- if .IsHome }}
 {{- $pages = where site.RegularPages "Type" "in" site.Params.mainSections }}
 {{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true"  }}
-{{- /* 首页：featured 文章优先，然后按 Lastmod 排序 */}}
-{{- $featured := where $pages "Params.featured" true }}
-{{- $unfeatured := where $pages "Params.featured" false }}
-{{- $featured = sort $featured "Lastmod" "desc" }}
-{{- $unfeatured = sort $unfeatured "Lastmod" "desc" }}
-{{- $pages = union $featured $unfeatured }}
+{{- /* 首页按最近更新时间排序 */}}
+{{- $pages = sort $pages "Lastmod" "desc" }}
 {{- else }}
 {{- $pages = sort $pages "Lastmod" "desc" }}
 {{- end }}

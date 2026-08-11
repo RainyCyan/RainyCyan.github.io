@@ -40,8 +40,41 @@ TocOpen: true
 - **history**
 - **grep**
 - **sed**
+#### git -- version control, code history, long long long live
+keyword:vcs(version control system)记录版本变动信息；快照，Git 将顶级目录中的文件和文件夹作为集合，并通过一系列快照来管理其历史记录。
+> TODO:补充CR,PR/MR以及amend,rebase,squash的协同工作
 
-#### vim
+- Git的数据模型
+有向无环图DAG
+
+#### welcome `vim` hotel
+> vim不是一种模式，vim是一种处境<狗头>
+
+首先,我们把编程这个任务拆分一下:理解/阅读(read)约占 50%–58%,是最大的一块;导航/定位(navigate)约占
+30%–35%;编辑(edit/write)约占 5%–20%,其中"从零敲入新代码"只有约 5%,是最小的一块。
+
+因此,根据第一性原理,最该优先优化的是 read 和 navigate。我们从这两者中抽出一个最核心的动作——移动
+(move)。又因为这是在编辑场景下,我们不希望手离开键盘去够鼠标,所以移动只能靠按键完成。而定位的关键之
+一是按关键词跳转,这个交给命令来做。至于占比最小、只做追加式写入的 write,设一道门槛即可——用 i 显式
+进入这个模式。
+
+vim 把按键动作次数饭比喻行为频率分配，划分了不同的“模式”：
+
+1. Normal Mode普通模式——对应read + navigate的主场
+这是vim的默认状态，也是整个设计的地基，vim的每个按键在这里默认都是命令，而不是“插入字符”。
+- 全部的导航动作：w b e /f t/
+
+
+2. Insert Mode插入模式——多一次按键
+对应频率最低的
+
+vim 的哲学在于它成功的解耦了程序员的代码编辑任务，编程时，你的大部分时间都花在代码间导航、阅读代码片段和修改代码上，而不是长时间连续输入，或者从头到尾线性地通读文件。
+移动：
+
+hjkl(左下上右)
+w(ord),b(egin),e(nd)
+0(start pos of line),^(non-empty character)
+
 
 #### tmux
 

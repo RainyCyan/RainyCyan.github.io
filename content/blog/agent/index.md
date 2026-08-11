@@ -21,7 +21,8 @@ TocOpen: true
 
 ## 多 Agent 协作时代的 Git 规范
 
-> 这不是 Git 入门教程。这是团队协作、单人多 Agent 在产品迭代时总结出来的一套"防互相踩踏"协作规约。
+> 分享一篇agent-git协作的workflow,已经被整合进[skills-hub/git-workflow](https://github.com/RainyCyan/skills-hub.git)这不是 Git 入门教程。这是团队协作、单人多 Agent 在产品迭代时总结出来的一套"防互相踩踏"协作规约。
+
 
 AI 写代码比人快好几个数量级，犯错也是。多 Agent 并发的典型失控场景：
 
