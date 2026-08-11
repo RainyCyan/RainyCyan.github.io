@@ -1,3 +1,7 @@
+---
+draft: true
+---
+
 Always respond in Chinese-simplified.
 
 # 实现原则

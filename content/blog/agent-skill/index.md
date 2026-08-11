@@ -1,3 +1,7 @@
+---
+draft: true
+---
+
 # skill lifespan
 
 真正有效的skill实际上是能够根据日常使用中得到反馈进而优化，不断迭代的skill.
