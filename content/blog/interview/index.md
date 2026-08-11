@@ -5,6 +5,7 @@ tags: [面试]
 series: []
 featured: true
 description: "面试准备指南，涵盖自我介绍、项目介绍、竞赛经历等环节"
+draft: true
 ---
 
 # 面试指北
