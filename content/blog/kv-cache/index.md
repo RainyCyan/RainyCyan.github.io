@@ -9,12 +9,12 @@ draft: false
 ---
 ## TL;DR
 
-- KV Cache 是 Transformer 推理的"原罪"（本文结尾会说明它其实是一种"选择"），也是 decode 阶段最主要的内存流量来源之一：causal mask 让历史 K/V 可被安全复用，但显存需求线性增长为 \(2 \cdot L \cdot n_h \cdot d_h \cdot s \cdot \text{dtype_bytes}\)；小 batch decode 的算术强度可低至个位数 FLOP/byte，远低于 A100 的 ~153 FLOP/byte 屋脊点，落在 Roofline 的 memory-bound 区。注意 decode 并非只读 KV——模型权重同样要过一遍 HBM，小 batch 下权重读取本身就是重要瓶颈。
+- KV Cache 是 Transformer 推理的"原罪"（本文结尾会说明它其实是一种"选择"），也是 decode 阶段最主要的内存流量来源之一：causal mask 让历史 K/V 可被安全复用，但显存需求线性增长为 $2 \cdot L \cdot n_h \cdot d_h \cdot s \cdot \text{dtype\_bytes}$；小 batch decode 的算术强度可低至个位数 FLOP/byte，远低于 A100 的 ~153 FLOP/byte 屋脊点，落在 Roofline 的 memory-bound 区。注意 decode 并非只读 KV——模型权重同样要过一遍 HBM，小 batch 下权重读取本身就是重要瓶颈。
 - 单卡装不下的现实：Llama-2-7B 在 128K 上下文下 KV Cache 已达约 64 GB，超过 A100 80GB；Llama-3.1-70B 在 4 并发 × 128K 下需要 160 GB，单张 H200（141 GB）都装不下。
-- 架构级压缩：MHA → GQA → MLA 是当前最有效的路线——MQA 将 KV Cache 缩到 \(1/n_h\)，GQA 用 \(n_g/n_h\) 换质量-延迟 Pareto，MLA 通过低秩联合压缩把 DeepSeek-V2 的 KV Cache 砍掉 93.3%。
+- 架构级压缩：MHA → GQA → MLA 是当前最有效的路线——MQA 将 KV Cache 缩到 $1/n_h$，GQA 用 $n_g/n_h$ 换质量-延迟 Pareto，MLA 通过低秩联合压缩把 DeepSeek-V2 的 KV Cache 砍掉 93.3%。
 - 量化 + 驱逐 + 稀疏是并行赛道：KIVI 2-bit 让 Llama-2-7B 显存降 2.6×、吞吐涨 2.35-3.47×；H2O / SnapKV / StreamingLLM 靠 attention sink 和 heavy hitter 做 selection；NVFP4 KV Cache 在长上下文上做到 10.7× 压缩、<1% 精度损失。
 - 系统层革命：vLLM 的 PagedAttention 把内存浪费从 60-80% 打到 4% 以下，带来 2-4× 吞吐；SGLang 的 RadixAttention 在前缀重的场景比 vLLM 快 5.6-6.4×；Mooncake 的 KV Cache 池 + Transfer Engine 让 Kimi K2 在 128 卡 H200 上跑到 288k tokens/s decode。
-- 未来是从 KV-heavy 到 KV-less：Mamba/RWKV-7/Jamba 等 SSM/混合架构把 decode 内存降到 \(O(1)\) 或大幅缩小，论文报告 Mamba 在长序列、低 batch 下吞吐可达同规模 Transformer 数倍（依模型/硬件/实现而变）；但 SSM 存在近因偏置和 associative recall 短板，Hybrid（Jamba/Zamba/Samba/Griffin）目前是最现实的折衷。
+- 未来是从 KV-heavy 到 KV-less：Mamba/RWKV-7/Jamba 等 SSM/混合架构把 decode 内存降到 $O(1)$ 或大幅缩小，论文报告 Mamba 在长序列、低 batch 下吞吐可达同规模 Transformer 数倍（依模型/硬件/实现而变）；但 SSM 存在近因偏置和 associative recall 短板，Hybrid（Jamba/Zamba/Samba/Griffin）目前是最现实的折衷。
 
 <!--more-->
 
@@ -22,7 +22,7 @@ draft: false
 
 Transformer 的自注意力被定义为
 
-\[\text{Attention}(Q,K,V)=\text{softmax}\!\left(QK^\top/\sqrt{d_k}\right)V\]
+$$\text{Attention}(Q,K,V)=\text{softmax}\!\left(QK^\top/\sqrt{d_k}\right)V$$
 
 其中 Q/K/V 分别由输入投影得到。在 decoder-only 的自回归生成中，每一步只新增一个 token，因此 Q 每步都要重新计算，但由于 causal mask 阻止未来位置向前看，历史 token 的 K/V 一旦算出便不会再变——这就是 KV Cache 得以存在的数学前提。
 
@@ -38,20 +38,20 @@ Transformer 的自注意力被定义为
 
 一次 LLM 推理天然分成两个阶段：Prefill 用一次前向把整个 prompt 全部编码、拿到第一个 token；Decode 则逐 token 自回归地生成后续 token。二者在 Roofline 图上落到完全不同的区域：
 
-- **Prefill 通常 compute-bound**：一次处理 \(S\) 个 token，矩阵乘的算术强度较高（长 prompt / 大 batch 下可达数百 FLOP/byte），能把 A100/H100 的 Tensor Core 打到接近饱和。但这并非绝对——很短的 prefill、极小 batch 或受限于特定 kernel 时，也可能落在 memory-bound 区。
+- **Prefill 通常 compute-bound**：一次处理 $S$ 个 token，矩阵乘的算术强度较高（长 prompt / 大 batch 下可达数百 FLOP/byte），能把 A100/H100 的 Tensor Core 打到接近饱和。但这并非绝对——很短的 prefill、极小 batch 或受限于特定 kernel 时，也可能落在 memory-bound 区。
 - **Decode 通常 memory-bound**：每步只算 1 个 token，却要把整个权重和不断长大的 KV Cache 从 HBM 里流一遍，算术强度很低（小 batch 下可低至个位数 FLOP/byte）。具体数值随 batch、context、GQA/MQA、kernel 实现变化，但方向稳定：远低于硬件屋脊点。
 
 关键推论：在 Prefill/Decode 混合的 batch 中，二者会互相拖累——Prefill 的高延迟拉高 Decode 的 TPOT，Decode 的低利用率又拉高整体 TTFT，这直接催生了后文的 P-D 分离架构。
 
 ### 1.2 KV Cache 把 K/V 的重复投影从 O(n²) 折叠为 O(n)
 
-如果不用 KV Cache，生成第 \(t\) 个 token 时需要重新为前 \(t-1\) 个 token 计算 K/V，整个生成过程中 K/V 投影的重复计算是 \(O(n^2)\)。缓存住 K/V 后，每一步只需为新 token 计算增量 K/V，把 **K/V 投影的总计算量**降到 \(O(n)\)。
+如果不用 KV Cache，生成第 $t$ 个 token 时需要重新为前 $t-1$ 个 token 计算 K/V，整个生成过程中 K/V 投影的重复计算是 $O(n^2)$。缓存住 K/V 后，每一步只需为新 token 计算增量 K/V，把 **K/V 投影的总计算量**降到 $O(n)$。
 
 这里要严格区分三种"复杂度"，不能笼统说"KV Cache 把推理降到 O(n)"：
 
-- **K/V 投影的重复计算**：从 \(O(n^2)\) → \(O(n)\)（这是 KV Cache 真正省下的部分）。
-- **decode attention 的总计算量**：仍是 \(O(n^2)\)——第 \(t\) 步的 \(q_t K_{1:t}^\top\) 仍要与 \(t\) 个历史 token 做点积，生成整个序列累加起来是二次的。
-- **KV Cache 存储 / 单步 attention 读取量**：\(O(n)\)（第 \(t\) 步读取 \(t\) 个 token 的 K/V）。
+- **K/V 投影的重复计算**：从 $O(n^2)$ → $O(n)$（这是 KV Cache 真正省下的部分）。
+- **decode attention 的总计算量**：仍是 $O(n^2)$——第 $t$ 步的 $q_t K_{1:t}^\top$ 仍要与 $t$ 个历史 token 做点积，生成整个序列累加起来是二次的。
+- **KV Cache 存储 / 单步 attention 读取量**：$O(n)$（第 $t$ 步读取 $t$ 个 token 的 K/V）。
 
 这也是为什么 MQA/MLA 等架构级优化的动机不是"少算"，而是"少读"——decode 阶段的瓶颈永远是 KV 张量的 HBM 读带宽。
 
@@ -69,11 +69,11 @@ Transformer 的自注意力被定义为
 
 KV Cache 的字节数由如下公式决定：
 
-\[\text{Bytes}_{\text{KV}} = 2 \cdot L \cdot n_{kv} \cdot d_h \cdot s \cdot b \cdot \text{dtype_bytes}\]
+$$\text{Bytes}_{\text{KV}} = 2 \cdot L \cdot n_{kv} \cdot d_h \cdot s \cdot b \cdot \text{dtype\_bytes}$$
 
-其中系数 2 来自 K 和 V 两份张量，\(L\) 是层数，\(n_{kv}\) 是 KV head 数（MHA 时等于 query head 数，GQA/MQA 下更小），\(d_h\) 是 head dim，\(s\) 是序列长度，\(b\) 是 batch。
+其中系数 2 来自 K 和 V 两份张量，$L$ 是层数，$n_{kv}$ 是 KV head 数（MHA 时等于 query head 数，GQA/MQA 下更小），$d_h$ 是 head dim，$s$ 是序列长度，$b$ 是 batch。
 
-代入 Llama-3 8B（\(L=32,\ n_{kv}=8,\ d_h=128\)，FP16）在 \(s=4096\) 时约为 0.5 GiB，在 128K 时上升到约 16 GiB。Llama-3-70B 因层数增至 80、KV heads 保持在 8，是典型的 GQA 折衷——在 128K 时单请求 KV Cache 约 40-42 GB，占 A100 80GB 一半以上。
+代入 Llama-3 8B（$L=32,\ n_{kv}=8,\ d_h=128$，FP16）在 $s=4096$ 时约为 0.5 GiB，在 128K 时上升到约 16 GiB。Llama-3-70B 因层数增至 80、KV heads 保持在 8，是典型的 GQA 折衷——在 128K 时单请求 KV Cache 约 40-42 GB，占 A100 80GB 一半以上。
 
 | 模型 | 层数 L | KV heads | Head dim | 4K (FP16) | 32K (FP16) | 128K (FP16) |
 |------|--------|----------|----------|-----------|------------|-------------|
@@ -87,12 +87,12 @@ KV Cache 的字节数由如下公式决定：
 
 ### 2.2 带宽与算术强度：为何 Decode 是 Memory-Bound
 
-以 A100 80GB 为例：FP16 Tensor Core 峰值 312 TFLOPS、HBM 带宽 2039 GB/s，屋脊点约为 \(312{,}000/2039 \approx 153\) FLOP/byte。而小 batch decode 一步的算术强度通常很低（个位数 FLOP/byte 量级），落在 Roofline 深处的 memory-bound 区域。实践中从 prefill 切到 decode，算术强度大幅下降，Tensor Core 从接近饱和跌到低利用率区间（具体百分比强依赖 batch、context、kernel 与并行策略，此处不给单一数字）。
+以 A100 80GB 为例：FP16 Tensor Core 峰值 312 TFLOPS、HBM 带宽 2039 GB/s，屋脊点约为 $312{,}000/2039 \approx 153$ FLOP/byte。而小 batch decode 一步的算术强度通常很低（个位数 FLOP/byte 量级），落在 Roofline 深处的 memory-bound 区域。实践中从 prefill 切到 decode，算术强度大幅下降，Tensor Core 从接近饱和跌到低利用率区间（具体百分比强依赖 batch、context、kernel 与并行策略，此处不给单一数字）。
 
 **Prefill（compute-bound）**
 
 - 一次处理整个 prompt
-- 算术强度随 \(S\) 线性增长
+- 算术强度随 $S$ 线性增长
 - 单请求即可打满 Tensor Core
 - 优化重点：FLOPs 效率
 
@@ -113,7 +113,7 @@ MQA 论文早在 2019 年就指出这一点：增量解码慢，本质原因是�
 
 | 类别 | 作用时机 | 作用对象 | 代表方法 | 典型收益 | 关键代价 |
 |------|----------|----------|----------|----------|----------|
-| 架构级 | 预训练 / 微调 | KV heads（跨 head 共享） | MQA、GQA、MLA | MQA: \(1/n_h\)；GQA: \(n_g/n_h\)；MLA: 93.3%↓ | 需重训 or uptrain；精度略降，MLA 需解耦 RoPE |
+| 架构级 | 预训练 / 微调 | KV heads（跨 head 共享） | MQA、GQA、MLA | MQA: $1/n_h$；GQA: $n_g/n_h$；MLA: 93.3%↓ | 需重训 or uptrain；精度略降，MLA 需解耦 RoPE |
 | 量化 | 推理时（可离线校准） | KV 张量的位宽（bits） | KIVI、KVQuant、FP8、NVFP4 | 2-bit: 显存 2.6×↓ / 吞吐 2.35-3.47×↑；NVFP4: 10.7×↓ | INT4 存在轻微精度损失；<2 bit 精度崩塌 |
 | 驱逐 | 在线（生成中动态淘汰） | tokens（少数关键 K/V） | H2O、Scissorhands、SnapKV、PyramidKV、StreamingLLM | 5× 显存↓ 且 4K 无损；32K 上几乎无损 | 依赖 heavy-hitter/sink 假设；长距离依赖任务有风险 |
 | 稀疏 | 推理时（query-aware） | KV blocks / channels | Quest、SparQ、FastGen | SparQ: 带宽 8×↓ 无损 | 需额外 relevance 计算；kernel 复杂 |
@@ -121,24 +121,24 @@ MQA 论文早在 2019 年就指出这一点：增量解码慢，本质原因是�
 
 ### 3.2 架构级：MHA → MQA → GQA → MLA
 
-MHA（Multi-Head Attention）为每个 query head 分配一份 KV head，KV Cache 大小随 head 数线性增长。MQA（Multi-Query Attention）让所有 query heads 共享一份 KV head，把 KV Cache 缩到 MHA 的 \(1/n_h\)，Falcon-7B/40B 是其代表。GQA（Grouped-Query Attention）把 query heads 分成 \(n_g\) 组、每组共享一份 KV head，压缩比为 \(n_g/n_h\)，当 \(n_g=1\) 退化为 MQA、\(n_g=n_h\) 回到 MHA。GQA 论文证明可用原始预训练算力的 5% 进行“向上训练”（uptraining）从 MHA 迁移，且质量接近 MHA、速度接近 MQA。
+MHA（Multi-Head Attention）为每个 query head 分配一份 KV head，KV Cache 大小随 head 数线性增长。MQA（Multi-Query Attention）让所有 query heads 共享一份 KV head，把 KV Cache 缩到 MHA 的 $1/n_h$，Falcon-7B/40B 是其代表。GQA（Grouped-Query Attention）把 query heads 分成 $n_g$ 组、每组共享一份 KV head，压缩比为 $n_g/n_h$，当 $n_g=1$ 退化为 MQA、$n_g=n_h$ 回到 MHA。GQA 论文证明可用原始预训练算力的 5% 进行“向上训练”（uptraining）从 MHA 迁移，且质量接近 MHA、速度接近 MQA。
 
 为什么 GQA 是主流：它在质量-延迟的 Pareto 前沿上比 MQA 更好、比 MHA 便宜得多；Llama 2 (70B)、Llama 3、Qwen2、Mistral 都采用了 GQA（后一条为 low-confidence 观点）。
 
-MLA（Multi-head Latent Attention，DeepSeek-V2/V3）走的是另一条路：用一个低秩联合矩阵把 KV 表示重参数化/低秩压缩成一个更紧凑的潜向量（latent），推理时缓存这个 latent 而非完整 K/V。但它不是"一个小向量替代 K/V 就完事"——标准 RoPE 与低秩压缩不兼容，因此 DeepSeek 采用**解耦 RoPE**：把 K 拆成不带 RoPE 的潜向量部分与带 RoPE 的解耦向量部分，实际缓存 = latent KV + decoupled RoPE 分量。DeepSeek-V3 的具体配置是 \(d_c=512,\ d^R_h=64\)。另一个关键工程 trick 是"矩阵吸收"：推理时把上投影矩阵 \(W_{UK}\) 吸收进 \(W_Q\) 或 \(W_O\)，使 decode 阶段无需重新显式恢复完整 K/V。DeepSeek-V2 报告 MLA 将 KV Cache 压缩约 93.3%。
+MLA（Multi-head Latent Attention，DeepSeek-V2/V3）走的是另一条路：用一个低秩联合矩阵把 KV 表示重参数化/低秩压缩成一个更紧凑的潜向量（latent），推理时缓存这个 latent 而非完整 K/V。但它不是"一个小向量替代 K/V 就完事"——标准 RoPE 与低秩压缩不兼容，因此 DeepSeek 采用**解耦 RoPE**：把 K 拆成不带 RoPE 的潜向量部分与带 RoPE 的解耦向量部分，实际缓存 = latent KV + decoupled RoPE 分量。DeepSeek-V3 的具体配置是 $d_c=512,\ d^R_h=64$。另一个关键工程 trick 是"矩阵吸收"：推理时把上投影矩阵 $W_{UK}$ 吸收进 $W_Q$ 或 $W_O$，使 decode 阶段无需重新显式恢复完整 K/V。DeepSeek-V2 报告 MLA 将 KV Cache 压缩约 93.3%。
 
 如果想直接看工程实现，Meta Llama 的参考代码里可以看到缓存张量 `cache_k` / `cache_v` 的更新与读取路径，见 [`llama/model.py`](https://github.com/meta-llama/llama/blob/main/llama/model.py#L253)。
 
 ![Llama KV Cache 代码示意](llama_kvcache代码.png)
 
-KV Cache 大小对比（\(n_h=128,\ d_h=128\) 的典型高头模型，每 token）：
+KV Cache 大小对比（$n_h=128,\ d_h=128$ 的典型高头模型，每 token）：
 
 | 架构 | 每 token KV Cache 维度 | 相对 MHA 压缩比 | 代表模型 |
 |------|------------------------|-----------------|----------|
-| MHA | \(2 n_h d_h = 32768\) | 1.0× | GPT-3, Llama-1, Llama-2-7B/13B |
-| MQA | \(2 d_h = 256\) | 128× | Falcon-7B/40B, PaLM |
-| GQA (\(n_g=8\)) | \(2 n_g d_h = 2048\) | 16× | Llama-2-70B, Llama-3, Qwen2, Mistral |
-| MLA | \(d_c + d^R_h = 576\)（V3 配置） | ~57×，DeepSeek-V2 实测 93.3%↓ | DeepSeek-V2/V3 |
+| MHA | $2 n_h d_h = 32768$ | 1.0× | GPT-3, Llama-1, Llama-2-7B/13B |
+| MQA | $2 d_h = 256$ | 128× | Falcon-7B/40B, PaLM |
+| GQA ($n_g=8$) | $2 n_g d_h = 2048$ | 16× | Llama-2-70B, Llama-3, Qwen2, Mistral |
+| MLA | $d_c + d^R_h = 576$（V3 配置） | ~57×，DeepSeek-V2 实测 93.3%↓ | DeepSeek-V2/V3 |
 
 数据来源之一将 MHA/GQA/MLA/MQA 排序为 MHA > GQA > MLA > MQA（按每 token 显存）。在 2.5B 规模的实验里，MLA 达到 36.9% 准确率，反而超过 MHA(35.3%)、GQA(35.8%) 和 MQA(33.3%)，说明低秩压缩不必然降低质量（LOW/MEDIUM 置信度，来自单一学术实验）。
 
@@ -146,7 +146,7 @@ KV Cache 大小对比（\(n_h=128,\ d_h=128\) 的典型高头模型，每 token�
 
 KV Cache 量化的核心洞察是 K 与 V 的分布不同：K 存在明显的 outlier channels，适合 per-channel 量化；V 则适合 per-token 量化。KIVI 基于这一发现推出无需微调的 2-bit 混合量化，Llama-2-7B 上报告峰值显存降 2.6×、支持 4× 更大 batch、吞吐提升 2.35-3.47×。KVQuant 进一步引入敏感度加权与常数偏移校准，把 K 压到 3-bit/4-bit 且精度损失极低。
 
-需要澄清一个容易误读的点：FP16 → 2-bit 意味着 **KV 张量本体**理论上有 8× 压缩（\(2/16 = 12.5\%\)）。但 KIVI 报告的 **2.6× 是端到端峰值显存**下降——因为模型权重、activation、workspace、量化元数据与 overhead 并不随 KV 位宽下降，仍然占用显存。因此"2.6×"不能理解成"KV 本身只压了 2.6×"，二者是不同层面的量。
+需要澄清一个容易误读的点：FP16 → 2-bit 意味着 **KV 张量本体**理论上有 8× 压缩（$2/16 = 12.5\%$）。但 KIVI 报告的 **2.6× 是端到端峰值显存**下降——因为模型权重、activation、workspace、量化元数据与 overhead 并不随 KV 位宽下降，仍然占用显存。因此"2.6×"不能理解成"KV 本身只压了 2.6×"，二者是不同层面的量。
 
 在工业推理引擎侧，FP8 已经普及：vLLM 支持 `--kv-cache-dtype fp8` 参数，在 Hopper 上直接以 FP8 完成 QK 和 ScoreV 矩阵乘。NVIDIA 的 NVFP4 KV Cache 在长上下文基准（如 AIME25）上做到 10.7× 显存缩减且 <1% 精度损失。LMDeploy 的实测经验是 INT8 几乎无损、INT4 有轻微下降。
 
@@ -310,25 +310,25 @@ RAG 场景的核心边界条件是 RoPE 位置编码的位置敏感性：标准 
 
 ### 7.1 复杂度：Softmax Attention vs Linear / Recurrent
 
-标准 Softmax Attention 在 decode 时是 \(O(L)\) 空间复杂度——KV Cache 随序列长度 \(L\) 线性增长。Linear Attention 类方法（Performer 等）通过近似 softmax 把 attention 改写成可增量维护的状态，理论上可以做到 KV-free。状态空间模型（SSM）如 Mamba 更极端：无论已经处理多少 token，模型只维持一个固定大小的循环状态，推理内存复杂度是 \(O(1)\)。
+标准 Softmax Attention 在 decode 时是 $O(L)$ 空间复杂度——KV Cache 随序列长度 $L$ 线性增长。Linear Attention 类方法（Performer 等）通过近似 softmax 把 attention 改写成可增量维护的状态，理论上可以做到 KV-free。状态空间模型（SSM）如 Mamba 更极端：无论已经处理多少 token，模型只维持一个固定大小的循环状态，推理内存复杂度是 $O(1)$。
 
 **Transformer 派**
 
 - 训练并行强、并可利用 KV Cache
-- Decode 单步 attention 读取 / 存储 \(O(L)\)，生成整个序列的 attention 总工作量 \(O(L^2)\)
+- Decode 单步 attention 读取 / 存储 $O(L)$，生成整个序列的 attention 总工作量 $O(L^2)$
 - Associative recall 强、二跳关联优势
 - 长上下文成本随 L 增长（存储线性、生成期 attention 二次）
 
 **SSM / RNN 派**
 
-- Decode 内存 \(O(1)\)，长序列上通常更快
+- Decode 内存 $O(1)$，长序列上通常更快
 - 论文报告 Mamba 在部分设置下吞吐达同规模 Transformer 数倍（依模型/硬件/实现而变）
 - 极长上下文下相对 Transformer 有内存与吞吐优势
 - 近因偏置 + 过平滑限制远距离依赖
 
 ### 7.2 Mamba / Mamba-2 / S4：状态空间模型的重生
 
-Mamba 通过 selective scan 把 SSM 变成参数化的 selection 机制，其推理阶段每步只更新一个固定大小的状态。论文报告在较长序列上 selective scan 的效率可超过 FlashAttention-2，推理吞吐相对同规模 Transformer 有数倍提升（因为不用 KV Cache 可以放更大 batch）；具体倍数强依赖模型规模、序列长度、硬件与 kernel，不宜当作架构定律。RetNet 则支持 parallel / recurrent / chunkwise recurrent 三种模式，其中 recurrent 提供 \(O(1)\) 推理。
+Mamba 通过 selective scan 把 SSM 变成参数化的 selection 机制，其推理阶段每步只更新一个固定大小的状态。论文报告在较长序列上 selective scan 的效率可超过 FlashAttention-2，推理吞吐相对同规模 Transformer 有数倍提升（因为不用 KV Cache 可以放更大 batch）；具体倍数强依赖模型规模、序列长度、硬件与 kernel，不宜当作架构定律。RetNet 则支持 parallel / recurrent / chunkwise recurrent 三种模式，其中 recurrent 提供 $O(1)$ 推理。
 
 但 SSM 有两个被反复验证的缺陷：
 
@@ -348,7 +348,7 @@ RWKV 结合了 RNN 与 Transformer 的优势——线性时间、常数空间（
 - **Samba** 交替堆叠 Mamba、SwiGLU 与 Sliding Window Attention (SWA)，面向“高效无限上下文”。
 - **Griffin（DeepMind）** 采用 RG-LRU 机制，在长序列上比 MQA Transformer 吞吐更高、延迟更低，Griffin-7B/14B 与 Llama-2 相当。
 - **Hymba（NVIDIA）** 在同一层内并行放置 attention 与 SSM 头，并通过跨层 KV 共享把吞吐提升 3×、显存缩减近 4×；还引入可学习的元令牌（Meta Tokens）前挂在 prompt 之前作为学习型缓存。
-- **FDM (Fan Duality Model)** 是较新的一支：严格 \(O(1)\) 解码内存（867 MB 固定），8K 序列上比 Transformer 内存降 4.9×，MQAR 关联回想任务准确率 0.966（Transformer 0.606）。
+- **FDM (Fan Duality Model)** 是较新的一支：严格 $O(1)$ 解码内存（867 MB 固定），8K 序列上比 Transformer 内存降 4.9×，MQAR 关联回想任务准确率 0.966（Transformer 0.606）。
 
 ### 7.5 实践判断：什么时候该考虑 KV-less 架构？
 
@@ -360,7 +360,7 @@ RWKV 结合了 RNN 与 Transformer 的优势——线性时间、常数空间（
 | 极端超长上下文、吞吐优先 | SSM / Hybrid（长序列上内存与吞吐反转） | 需在关联回想任务上 A/B |
 | 多租户在线推理，希望像 vLLM 一样调度状态 | 短期仍是 Transformer；SSM 状态调度生态尚不成熟 | SSM state 大小固定，难点不在"连续大块内存"，而在状态生命周期、batching、reordering 与并发调度缺成熟方案 |
 
-结论一句话：KV Cache 不是 Transformer 的“原罪”，而是“选择”——是它换来了强大的 associative recall 和并行训练。SSM / RWKV / 混合架构提供了 \(O(1)\) 的诱人方案，但在检索、二跳关联、上下文学习上仍在追赶。可预见的 2-3 年，Transformer + 架构级压缩 (MLA/GQA) + 系统级复用 (PagedAttention/RadixAttention) + P-D 分离 (Mooncake/DistServe) 仍将是生产主线；混合架构 (Jamba/Griffin/Hymba) 将成为长上下文场景的强力挑战者。
+结论一句话：KV Cache 不是 Transformer 的“原罪”，而是“选择”——是它换来了强大的 associative recall 和并行训练。SSM / RWKV / 混合架构提供了 $O(1)$ 的诱人方案，但在检索、二跳关联、上下文学习上仍在追赶。可预见的 2-3 年，Transformer + 架构级压缩 (MLA/GQA) + 系统级复用 (PagedAttention/RadixAttention) + P-D 分离 (Mooncake/DistServe) 仍将是生产主线；混合架构 (Jamba/Griffin/Hymba) 将成为长上下文场景的强力挑战者。
 
 ## 8. 延伸阅读
 
