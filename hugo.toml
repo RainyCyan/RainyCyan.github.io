@@ -16,6 +16,13 @@ enableGitInfo = true
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
+  [markup.highlight]
+    # 用 class 而非内联样式渲染代码，交由 extended CSS 控制配色
+    noClasses = false
+    codeFences = true
+    guessSyntax = true
+    lineNos = false
+    tabWidth = 4
 
 [params]
   # 首页模式 - 使用 homeInfoParams 显示个人简介

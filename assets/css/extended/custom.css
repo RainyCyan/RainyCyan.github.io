@@ -216,3 +216,192 @@
     min-width: auto;
   }
 }
+
+/* =========================================================================
+   学术三色渲染主题（蓝 / 白 / 黑）
+   - 仅使用蓝、白、黑及其灰阶过渡，不引入其他色相
+   - 变量随亮/暗主题自动翻转，一套规则同时适配两种模式
+   ========================================================================= */
+
+:root {
+  /* 亮色：白底黑字，蓝作强调 */
+  --code-block-bg: #f6f8fa;   /* 代码块底色：近白 */
+  --syn-fg: #1f2328;          /* 代码正文：近黑 */
+  --syn-blue: #0b57d0;        /* 学术蓝：关键字 / 函数 */
+  --syn-blue-soft: #1a73e8;   /* 次级蓝：类型 / 名称 */
+  --syn-muted: #57606a;       /* 灰：注释 */
+  --syn-string: #3b4657;      /* 深灰蓝：字符串 */
+  --accent-blue: #0b57d0;     /* 标题 / 引用强调蓝 */
+}
+
+:root[data-theme="dark"] {
+  /* 暗色：暗底白字，亮蓝作强调 */
+  --code-block-bg: #1c1d21;
+  --syn-fg: #e6e6e6;
+  --syn-blue: #7cb0ff;
+  --syn-blue-soft: #9ec5ff;
+  --syn-muted: #9aa4b2;
+  --syn-string: #c2cddb;
+  --accent-blue: #7cb0ff;
+}
+
+/* ---- 标题分级：蓝色强调 ---- */
+.post-content h2 {
+  color: var(--accent-blue);
+  border-bottom: 2px solid var(--accent-blue);
+}
+
+.post-content h3 {
+  color: var(--accent-blue);
+}
+
+.post-content h4,
+.post-content h5,
+.post-content h6 {
+  color: var(--primary);
+}
+
+/* ---- 引用块：蓝色左边框 + 轻微蓝底 ---- */
+.post-content blockquote {
+  border-inline-start: 0.3rem solid var(--accent-blue);
+}
+
+/* ---- 行内代码：蓝字，去彩色 ---- */
+.post-content :not(pre) > code {
+  color: var(--accent-blue);
+  background: var(--code-bg);
+}
+
+/* ---- 代码块正文与底色：黑白灰基调 ---- */
+.md-content pre code {
+  color: var(--syn-fg) !important;
+  background: var(--code-block-bg) !important;
+}
+
+.md-content .highlight:not(table) {
+  background: var(--code-block-bg) !important;
+  border: 1px solid var(--border);
+}
+
+/* ---- 链接：统一蓝色 ---- */
+.post-content a {
+  color: var(--accent-blue);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(11, 87, 208, 0.3);
+}
+
+.post-content a:hover {
+  border-bottom-color: var(--accent-blue);
+}
+
+/* =========================================================================
+   Chroma 语法高亮覆盖（蓝 / 黑 / 灰）
+   优先级高于主题内置 chroma-styles.css，映射到三色变量
+   ========================================================================= */
+
+/* 关键字 / 控制流：蓝色加粗 */
+.post-content .chroma .k,
+.post-content .chroma .kc,
+.post-content .chroma .kd,
+.post-content .chroma .kn,
+.post-content .chroma .kp,
+.post-content .chroma .kr,
+.post-content .chroma .kt,
+.post-content .chroma .nt,
+.post-content .chroma .ow {
+  color: var(--syn-blue);
+  font-weight: 600;
+}
+
+/* 函数 / 名称 / 属性：蓝色 */
+.post-content .chroma .nf,
+.post-content .chroma .fm,
+.post-content .chroma .nd,
+.post-content .chroma .na,
+.post-content .chroma .nl {
+  color: var(--syn-blue);
+  font-weight: normal;
+}
+
+/* 类型 / 类 / 常量 / 命名空间：次级蓝 */
+.post-content .chroma .nc,
+.post-content .chroma .no,
+.post-content .chroma .nn,
+.post-content .chroma .ne,
+.post-content .chroma .nb,
+.post-content .chroma .bp {
+  color: var(--syn-blue-soft);
+}
+
+/* 字符串：深灰蓝 */
+.post-content .chroma .s,
+.post-content .chroma .sa,
+.post-content .chroma .sb,
+.post-content .chroma .sc,
+.post-content .chroma .dl,
+.post-content .chroma .s2,
+.post-content .chroma .se,
+.post-content .chroma .si,
+.post-content .chroma .sx,
+.post-content .chroma .sr,
+.post-content .chroma .s1,
+.post-content .chroma .ss,
+.post-content .chroma .sd,
+.post-content .chroma .sh {
+  color: var(--syn-string);
+}
+
+/* 数字 / 字面量：随正文色（近黑/近白），加粗以示区分 */
+.post-content .chroma .m,
+.post-content .chroma .mb,
+.post-content .chroma .mf,
+.post-content .chroma .mh,
+.post-content .chroma .mi,
+.post-content .chroma .il,
+.post-content .chroma .mo {
+  color: var(--syn-fg);
+  font-weight: 600;
+}
+
+/* 运算符 / 标点 / 变量 / 普通名称：正文色 */
+.post-content .chroma .o,
+.post-content .chroma .p,
+.post-content .chroma .n,
+.post-content .chroma .nx,
+.post-content .chroma .nv,
+.post-content .chroma .vc,
+.post-content .chroma .vg,
+.post-content .chroma .vi,
+.post-content .chroma .vm,
+.post-content .chroma .py {
+  color: var(--syn-fg);
+  font-weight: normal;
+}
+
+/* 注释：灰色斜体 */
+.post-content .chroma .c,
+.post-content .chroma .ch,
+.post-content .chroma .cm,
+.post-content .chroma .c1,
+.post-content .chroma .cs,
+.post-content .chroma .cp,
+.post-content .chroma .cpf {
+  color: var(--syn-muted);
+  font-style: italic;
+  font-weight: normal;
+}
+
+/* 预处理 / 泛型标题：蓝色 */
+.post-content .chroma .gh,
+.post-content .chroma .gu {
+  color: var(--syn-blue);
+  font-weight: 600;
+}
+
+/* 错误：不引入红色，用蓝色下划线标注 */
+.post-content .chroma .err,
+.post-content .chroma .gr,
+.post-content .chroma .gt {
+  color: var(--syn-fg);
+  text-decoration: underline wavy var(--syn-blue);
+}
