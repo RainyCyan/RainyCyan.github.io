@@ -13,6 +13,7 @@ draft: true
 ​
 这是内容
 ## 动态规划
+如何识别动态规划问题，
 
 ## 图论进阶
 
@@ -22,8 +23,393 @@ draft: true
 
 ## bfs & dfs
 
-## 二叉树
+## 递归与回溯
+回溯的本质就是在搜索一棵决策树。比如1,2,3的全排列
 
+递归解决的是：规模变小之后，重复解决同一个问题。
+```c++
+void dfs(int x) {
+    if (x == n /*end condition*/) {
+        return;
+    }
+
+    dfs(x + 1);//缩小状态空间
+}
+```
+回溯是在递归基础上增加：
+
+做选择 → 递归 → 撤销选择
+```c++
+void backtrack(状态参数) {
+
+    // 如果当前状态是一个答案
+    if (满足答案条件) {
+        ans.push_back(path);
+    }
+//这里的关键就在于判断答案是否需要和结束条件合并
+    // 如果需要结束递归
+    if (满足结束条件) {
+        return;
+    }
+
+    // 枚举选择
+    for (每一个选择) {
+        // 做选择
+        path.push_back(...);
+        // 递归
+        backtrack(下一状态);
+        // 撤销选择
+        path.pop_back();
+    }
+}
+```
+
+>例如子集，所有中间状态都是答案，因此都需要push_back
+
+```c++
+//子集2，去重版
+vector<int> path;
+vector<vector<int>> ans;
+void backtracking(vector<int>& nums, int start) {
+    int n = nums.size();
+    ans.push_back(path);
+    if (start == n) {
+        return;
+    }
+
+    for (int i = start; i < n; ++i) {
+        if (i > start && nums[i] == nums[i - 1]) {
+            continue;
+        }
+        path.push_back(nums[i]);
+        backtracking(nums, i + 1);
+        path.pop_back();
+    }
+}
+
+void subsets(vector<int>& nums) {
+    //先sort
+    sort(nums.begin(), nums.end());
+    backtracking(nums, 0);
+}
+```
+> 组合问题，path.size() == k时，就是答案，终止递归
+
+> 组合总和问题1，可以重复选择，因此递归就从当前元素开始(不从0开始是为了避免状态重复)
+```c++
+combination1: 无重复元素+重复选择；进入下一层时，从当前元素开始；结束条件target <0
+
+2.去重复：if (i > start && candidates[i] == candidates[i - 1]) {
+    continue;
+}
+
+3. k个元素，if (path.size() == k) {
+    ans.push_back(path);
+    return;
+}
+
+4.排列总和，递归+动态规划
+```
+
+> 排列问题
+组合是“从后面继续选”，排列是“每一层都可以选任意没用过的元素”。因此我们定义排列 = 每一层都可以从所有元素中选，但一个元素只能用一次。为了避免重复，我们需要记录已经用过的元素，
+
+```c++
+全排列，vecotr<bool> used
+去重复，if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+    continue;
+}
+```
+
+> 字符串/分割类回溯
+- LC17 电话号码的字母组合
+```c++
+void backtrack(string& digits) {
+    if (path.size() == digits.size()) {
+        ans.push_back(path);
+        return;
+    }
+
+    string letters = mp[digits[path.size()]];
+
+    for (char c : letters) {
+        path.push_back(c);
+
+        backtrack(digits);
+
+        path.pop_back();
+    }
+}
+```
+## 二叉树
+一个经典的二叉树节点定义如下：
+```c++
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+};
+```
+观察得知，二叉树有一个很优雅的递归结构：`一棵树入口 = 根节点(root) +左右子树`
+
+> 迭代遍历二叉树(染色法)
+```c++
+vector<int> traverse(TreeNode* root, int type) {
+    vector<int> result;
+    if (root == nullptr) {
+        return result;
+    }
+
+    stack<pair<TreeNode*, bool>> stk;
+    stk.push({root, false});
+
+    while (!stk.empty()) {
+        auto [node, visited] = stk.top();
+        stk.pop();
+
+        if (node == nullptr) {
+            continue;
+        }
+
+        if (visited) {
+            result.push_back(node->val);
+        } else {
+            if (type == 0) {
+                //前序根-左-右，对应入栈顺序为：右-左-根
+                stk.push({node->right, false});//右
+                stk.push({node->left, false});//左
+                stk.push({node->val, true});//根
+            } else if (type == 1) {
+                //中序左-根-右，对应入栈顺序为：右-根-左
+                stk.push({node->right, false});//右
+                stk.push({node->val, true});//根
+                stk.push({node->left, false});//左
+            } else {
+                //后序左-右-根，对应入栈顺序为：根-右-左
+                stk.push({node->val, true});//根
+                stk.push({node->right, false});//右
+                stk.push({node->left, false});//左
+            }
+        }
+    }
+}
+```
+> 递归的结构
+```c++
+void recur() {
+    if (end_condition) {
+        return;
+    }
+    recur();
+    return;
+}
+```
+>
+
+因此对于二叉树的问题可以问自己：问题 A：空节点怎么办？问题 B：当前节点要干什么？问题 C：左右子树要不要递归？问题 D：当前节点的操作是在子树之前还是之后？
+比如对于树的深度
+```c++
+int maxDepth(TreeNode* root) {
+    if (!root) {//空节点返回0
+        return 0;
+    }
+    //当前节点深度+1
+    //计算左右子树深度，取较大者，当前节点操作在后面
+    return 1 + max(maxDepth(root->left), maxDepth(root->right));
+}
+```
+又比如翻转二叉树
+```c++
+TreeNode* invertTree(TreeNode* root) {
+    if (!root) {
+        return nullptr;
+    }
+    //交换左右子树
+    swap(root->left, root->right);
+    //递归翻转左右子树
+    invertTree(root->left);
+    invertTree(root->right);
+    return root;
+}
+```
+再比如判断对称二叉树，实际需要对两颗子树分析判断
+包含结束情况：1.两个空节点，true;2.一空一非空，false;3.不想等，false;4.递归判断子树需要判断(a->left,b->right)和(a->right,b->left)
+```c++
+bool isSymmetric(TreeNode* a, TreeNode* b) {
+    if (!a && !b) {
+        return true;
+    }
+    if (!a || !b) {
+        return false;
+    }
+    return a->val == b->val && isSymmetric(a->left, b->right) && isSymmetric(a->right, b->left);
+}
+bool isSymmetric(TreeNode* root) {
+    if (!root) {
+        return true;
+    }
+    return isSymmetric(root->left, root->right);
+}
+```
+因此对于树的遍历(DFS)可以根据对根节点的处理顺序分为前中后序
+
+前面都是深度遍历dfs,下面来说层序遍历
+```c++
+void bfs(TreeNode* root) {
+    if (!root) return;
+
+    queue<TreeNode*> q;
+    q.push(root);
+
+    while (!q.empty()) {
+        int size = q.size();  // 当前层节点数量
+
+        for (int i = 0; i < size; i++) {
+            TreeNode* node = q.front();
+            q.pop();
+
+            // ===== 处理当前节点 =====
+
+
+            // ===== 加入下一层 =====
+            if (node->left) {
+                q.push(node->left);
+            }
+
+            if (node->right) {
+                q.push(node->right);
+            }
+        }
+    }
+}
+```
+> LC199 二叉树的右视图
+这道题即可以用层序bfs也可以用dfs
+bfs的话就是经典模板+输出控制，dfs实际先处理右子树，再处理左子树，每层访问的第一个元素进入答案，需要一个参数标记层数
+
+> LCR045. 找树左下角的值
+bfs每层第一个元素更新答案；dfs需要一个全局参数标记当前访问最大深度，然后第一次进入新层就更新答案
+
+#### 二叉树路径和问题
+
+> 路径和1/2/3
+```c++
+hasPathSum()：最简单，确定dfs含义是判断是否存在路径，当前节点处理直接减去cur->val,递归返回左右子树结果取或
+
+```
+pathSum三是任意节点开始，任意子节点结束，想到用前缀和+hash(当然不能忘记递归回溯结构)
+
+迭代方式前中后序实现
+
+- 返回值设计
+> LC110 平衡二叉树
+平衡二叉树指的是树的高度相差不超过1，因此想到左右子树高度->当前节点高度，有`height(node) = max(node->left, node->right) + 1`,但是如果每个节点都判断的话，会有很多重复计算；返回值可以设计成如果不平衡 -1,我们让height完成了1.判断平衡2.如果平衡，返回高度两个功能
+```c++
+int height(TreeNode* root) {
+    if (!root) {
+        return 0;
+    }
+
+    int leftHeight = height(root->left);
+    if (leftHeight == -1) {
+        return -1;
+    }
+    int rightHeight = height(root->right);
+    if (rightHeight == -1) {
+        return -1;
+    }
+    if (abs(leftHeight - rightHeight) > 1) {
+        return -1;
+    }
+    return max(leftHeight, rightHeight) + 1;
+}
+
+bool isBalanced(TreeNode* root) {
+    return height(root) != -1;
+}
+```
+
+LC124 二叉树中的最大路径和
+仍然可以用通过所有根节点的最大路径和更新答案，但是需要处理负数
+
+```c++
+int ans = INT_MIN;
+int dfs(TreeNode* root) {
+    if (!root) {
+        return 0;
+    }
+    // 返回的是从当前节点向下的最大路径和
+    int leftMax = dfs(root->left);
+    int rightMax = dfs(root->right);
+
+    int cur = root->val;
+    cur += leftMax > 0 ? leftMax : 0;
+    cur += rightMax > 0 ? rightMax : 0;
+
+    ans = max(ans, cur);
+
+    return root->val + max(0, max())
+}
+
+int maxPathSum(TreeNode* root) {
+    dfs(root);
+    return ans;
+}
+```
+
+#### 二叉搜索树BST
+二叉搜索树有以下性质：
+- 左< 根< 右:左子树所有节点 < 根节点 < 右子树所有节点,注意是整个子树
+- BST 中序遍历得到严格递增序列。
+- BST 查找可以利用大小关系排除一半子树,BST插入实际也是利用搜索
+- 最小值一直向左，最大值一直向右
+
+```c++
+class BST {
+private:
+    TreeNode* root;
+public:
+    TreeNode* search(int target) {
+        TreeNode* cur = root;
+        while (cur) {
+            if (cur->val == target) {
+                return cur;
+            }else if (cur->val > target) {
+                cur = cur->left;
+            } else {
+                cur = cur->right;
+            }
+        }
+        return nullptr;
+    }
+
+    void insert(int val) {
+
+    }
+}
+```
+> LC98 验证二叉搜索树
+利用性质1，当前节点需要判断是否合法需要传入范围[low,high]
+```c++
+bool dfs(TreeNode* root, long long low, long long high) {
+    if (!root) {
+        return true;
+    }
+
+    if (root->val <= low || root->val >= high) {
+        return false;
+    }
+
+    return dfs(root->left, low, root->val) && dfs(root->right, root->val, high);
+}
+bool isValidBST(TreeNode* root) {
+    return dfs(root, LLONG_MIN, LLONG_MAX);
+}
+```
 ## 堆
 堆的一个重要价值在于找到topK元素；
 > 数组中的topK元素
@@ -61,6 +447,85 @@ for(){...}
 
 while(!pq.empty()){ans.push_back(pq.top().first);pq.pop();}
 ```
+
+> 数据流的中位数
+动态插入 + 动态查询中间值。如果维护有序数组，插入不是O(1),注意到中位数把数组切割成了两个近似相等的部分，我们只关心中位数左边有哪些元素，以及右边有哪些元素。
+
+左半边我们需要知道最大的元素是多少？右边我们需要知道最小的元素是多少，因此两个堆维护。约束条件就是两个堆的大小差不能超过1。
+
+```c++
+class MedianFinder {
+public:
+    MedianFinder() {
+        
+    }
+    
+    void addNum(int num) {
+        if (maxHeap.empty() || num < maxHeap.top()) {
+            maxHeap.push(num);
+        } else {
+            minHeap.push(num);
+        }
+
+        // 2. 保证 maxHeap 比 minHeap 多 0 或 1 个
+        if (maxHeap.size() < minHeap.size()) {
+            maxHeap.push(minHeap.top());
+            minHeap.pop();
+        } 
+        else if (maxHeap.size() > minHeap.size() + 1) {
+            minHeap.push(maxHeap.top());
+            maxHeap.pop();
+        }
+    }
+    
+    double findMedian() {
+        if (maxHeap.size() == minHeap.size()) {
+            return (maxHeap.top() + minHeap.top()) / 2.0;
+        }
+
+        return maxHeap.top();
+    }
+private:
+    priority_queue<int> maxHeap;//左半边
+    priority_queue<int, vector<int>, greater<int>> minHeap;
+};
+```
+
+> 合并K个有序链表
+注意到每个链表都已经排好序了，所以每个链表头就是最小元素，所有链表头最小就是全局最小，那不断取链表头就好了；观察我们实际做的就是在k个元素中重复找最小的，很明显用堆
+
+```c++
+    ListNode* mergeKLists(vector<ListNode*>& lists) {
+        //找最小，最小堆
+        auto cmp = [](const auto&a, const auto &b) {
+            return a->val > b->val;
+        };
+        priority_queue<ListNode*, vector<ListNode*>, decltype(cmp)>  pq;
+        
+        for (ListNode *head : lists) {
+            if (head){
+                pq.push(head);
+            }
+        }
+
+        ListNode dummy(0);
+        ListNode *tail = &dummy;
+        while (!pq.empty()) {
+            auto cur = pq.top();
+            tail->next = cur;
+            tail = tail->next;
+            pq.pop();
+            if (cur->next) {
+                pq.push(cur->next);
+            }
+        }
+        return dummy.next;
+    }
+```
+
+### 拓展：建堆和堆排序
+
+
 
 ## 哈希
 Hash 最核心的能力：
