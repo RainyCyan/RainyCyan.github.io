@@ -5,11 +5,11 @@ tags: [LLM, Inference, KVCache, Transformer]
 series: []
 featured: true
 description: "为什么大模型推理离不开 KV Cache？从原理、显存代价到 PagedAttention、量化、共享与卸载，聊聊围绕这块缓存展开的工程博弈。"
-draft: false
+draft: true
 ---
 ## TL;DR
 
-- KV Cache 是 Transformer 推理的"原罪"（本文结尾会说明它其实是一种"选择"），也是 decode 阶段最主要的内存流量来源之一：causal mask 让历史 K/V 可被安全复用，但显存需求线性增长为 $2 \cdot L \cdot n_h \cdot d_h \cdot s \cdot \text{dtype\_bytes}$；小 batch decode 的算术强度可低至个位数 FLOP/byte，远低于 A100 的 ~153 FLOP/byte 屋脊点，落在 Roofline 的 memory-bound 区。注意 decode 并非只读 KV——模型权重同样要过一遍 HBM，小 batch 下权重读取本身就是重要瓶颈。
+- KV Cache 是 Transformer 推理的"原罪"（本文结尾会说明它其实是一种"选择"），也是 decode 阶段最主要的内存流量来源之一：causal mask 让历史 K/V 可被安全复用，但显存需求线性增长为 $2 \cdot L \cdot n_{kv} \cdot d_h \cdot s \cdot \text{dtype\_bytes}$；小 batch decode 的算术强度可低至个位数 FLOP/byte，远低于 A100 的 ~153 FLOP/byte 屋脊点，落在 Roofline 的 memory-bound 区。注意 decode 并非只读 KV——模型权重同样要过一遍 HBM，小 batch 下权重读取本身就是重要瓶颈。
 - 单卡装不下的现实：Llama-2-7B 在 128K 上下文下 KV Cache 已达约 64 GB，超过 A100 80GB；Llama-3.1-70B 在 4 并发 × 128K 下需要 160 GB，单张 H200（141 GB）都装不下。
 - 架构级压缩：MHA → GQA → MLA 是当前最有效的路线——MQA 将 KV Cache 缩到 $1/n_h$，GQA 用 $n_g/n_h$ 换质量-延迟 Pareto，MLA 通过低秩联合压缩把 DeepSeek-V2 的 KV Cache 砍掉 93.3%。
 - 量化 + 驱逐 + 稀疏是并行赛道：KIVI 2-bit 让 Llama-2-7B 显存降 2.6×、吞吐涨 2.35-3.47×；H2O / SnapKV / StreamingLLM 靠 attention sink 和 heavy hitter 做 selection；NVFP4 KV Cache 在长上下文上做到 10.7× 压缩、<1% 精度损失。
@@ -24,15 +24,23 @@ Transformer 的自注意力被定义为
 
 $$\text{Attention}(Q,K,V)=\text{softmax}\!\left(QK^\top/\sqrt{d_k}\right)V$$
 
-其中 Q/K/V 分别由输入投影得到。在 decoder-only 的自回归生成中，每一步只新增一个 token，因此 Q 每步都要重新计算，但由于 causal mask 阻止未来位置向前看，历史 token 的 K/V 一旦算出便不会再变——这就是 KV Cache 得以存在的数学前提。
+它嵌在下图的整体结构里：编码器 / 解码器都由多层堆叠而成，每层的核心就是多头注意力。
 
-![Transformer 结构示意](transformer结构.png)
+{{< figure src="transformer结构.png" alt="Transformer 结构与 encoder-decoder 数据流" caption="图 1：Transformer 整体结构（左）与 encoder-decoder 逐 token 生成（右）；本文聚焦 decoder 侧的自注意力。" >}}
 
-![Self-Attention 计算流程](self-attention计算流程.png)
+把一层注意力拆开看，它就是“打分 → 缩放 → 掩码 → 归一化 → 加权”这一串标准算子；多头注意力则是把若干个这样的 Scaled Dot-Product Attention 并行拼接再融合。
+
+{{< figure src="attention机制.png" alt="Scaled Dot-Product Attention 与 Multi-Head Attention" caption="图 2：Scaled Dot-Product Attention（左）与 Multi-Head Attention（右）的算子流与公式。" >}}
+
+其中 Q/K/V 都由同一份输入分别做线性投影得到——token embedding 与位置编码相加后，再各自乘上投影矩阵 $W_Q, W_K, W_V$。
+
+{{< figure src="self-attention计算流程.png" alt="Q/K/V 投影" caption="图 3：位置感知的 embedding 经三个线性层分别投影为 Q、K、V。" >}}
+
+在 decoder-only 的自回归生成中，每一步只新增一个 token，因此 Q 每步都要重新计算；但由于 causal mask 阻止未来位置向前看，历史 token 的 K/V 一旦算出便不会再变——这就是 KV Cache 得以存在的数学前提。
 
 这里讨论的主战场是 [decoder-only 架构](https://medium.com/@row3no6/why-chatgpt-uses-decoder-only-eaf0223143e6)，因为 ChatGPT / Llama 这一类自回归模型的 KV Cache 收益最大；如果想看中文语境下对 decoder-only 设计取舍的直观解释，也可以参考这篇[知乎回答](https://www.zhihu.com/question/588325646)。与之对应，encoder-decoder 模型的 cache 结构不同，除了 decoder 侧的自注意力缓存，还会涉及 encoder-decoder cache，Hugging Face 文档对这部分有一段比较清楚的说明：[`encoder-decoder cache`](https://huggingface.co/docs/transformers/kv_cache#encoder-decoder-cache)。
 
-![Decoder-only 生成示意](decoder_only.png)
+{{< figure src="decoder_only.png" alt="decoder-only 生成" caption="图 4：decoder-only 用同一套组件先编码 prompt、再逐 token 生成，每个新 token 只依赖其左侧的历史。" >}}
 
 ### 1.1 Prefill 与 Decode：两种截然不同的计算特性
 
@@ -47,21 +55,25 @@ $$\text{Attention}(Q,K,V)=\text{softmax}\!\left(QK^\top/\sqrt{d_k}\right)V$$
 
 如果不用 KV Cache，生成第 $t$ 个 token 时需要重新为前 $t-1$ 个 token 计算 K/V，整个生成过程中 K/V 投影的重复计算是 $O(n^2)$。缓存住 K/V 后，每一步只需为新 token 计算增量 K/V，把 **K/V 投影的总计算量**降到 $O(n)$。
 
-这里要严格区分三种"复杂度"，不能笼统说"KV Cache 把推理降到 O(n)"：
+回顾一步注意力到底做了什么：先让 query 与每个 key 做点积、缩放，得到打分（相似度）——
+
+{{< figure src="attention_score_QK.png" alt="Q 与 K 打分" caption="图 5：注意力打分——query 与每个 key 做点积并缩放，得到相似度。" >}}
+
+再用 softmax 归一化后的权重对 V 加权求和，得到该 query 位置的输出：
+
+{{< figure src="attention_score_V.png" alt="对 V 加权聚合" caption="图 6：用归一化后的注意力权重对 V 加权求和，得到该 query 位置的输出。" >}}
+
+这里要严格区分三种“复杂度”，不能笼统说“KV Cache 把推理降到 O(n)”：
 
 - **K/V 投影的重复计算**：从 $O(n^2)$ → $O(n)$（这是 KV Cache 真正省下的部分）。
 - **decode attention 的总计算量**：仍是 $O(n^2)$——第 $t$ 步的 $q_t K_{1:t}^\top$ 仍要与 $t$ 个历史 token 做点积，生成整个序列累加起来是二次的。
 - **KV Cache 存储 / 单步 attention 读取量**：$O(n)$（第 $t$ 步读取 $t$ 个 token 的 K/V）。
 
-这也是为什么 MQA/MLA 等架构级优化的动机不是"少算"，而是"少读"——decode 阶段的瓶颈永远是 KV 张量的 HBM 读带宽。
+causal mask 意味着第 $t$ 个 query 只与它左侧（含自身）的 key 相乘，打分矩阵天然是一个下三角——正是这块下三角结构，让历史 K/V 得以整段复用：
 
-![Attention 机制示意](attention机制.png)
+{{< figure src="kvcache_qk矩阵乘.png" alt="KV Cache 下的 QK 乘积" caption="图 7：causal 结构下打分矩阵只用到下三角；每新增一个 query，只需与缓存中的历史 K 相乘，无需重算历史 K/V。" >}}
 
-![QK 打分矩阵乘](attention_score_QK.png)
-
-![Attention 对 V 的加权聚合](attention_score_V.png)
-
-![KV Cache 复用后的 QK 计算](kvcache_qk矩阵乘.png)
+这也是为什么 MQA/MLA 等架构级优化的动机不是“少算”，而是“少读”——decode 阶段的瓶颈永远是 KV 张量的 HBM 读带宽。
 
 ## 2. KV Cache 的代价：显存、带宽与 Arithmetic Intensity
 
@@ -129,7 +141,7 @@ MLA（Multi-head Latent Attention，DeepSeek-V2/V3）走的是另一条路：用
 
 如果想直接看工程实现，Meta Llama 的参考代码里可以看到缓存张量 `cache_k` / `cache_v` 的更新与读取路径，见 [`llama/model.py`](https://github.com/meta-llama/llama/blob/main/llama/model.py#L253)。
 
-![Llama KV Cache 代码示意](llama_kvcache代码.png)
+{{< figure src="llama_kvcache代码.png" alt="Llama KV Cache 参考实现" caption="图 8：Meta Llama 参考实现中 `cache_k` / `cache_v` 的追加与读取路径。" >}}
 
 KV Cache 大小对比（$n_h=128,\ d_h=128$ 的典型高头模型，每 token）：
 
@@ -219,7 +231,7 @@ FlashDecoding 专为 decode 场景设计——decode 时 query 只有 1 个 toke
 
 第 1 节已经指出 Prefill 与 Decode 在算术强度、SLO 要求上都是两种截然不同的负载。如果把它们塞进同一张 GPU、同一批 batch，就会发生严重的相位干扰：长 prefill 拉高 decode 的 TPOT，decode 混批又拉高 TTFT。这类干扰催生了 2024 年以来最重要的推理系统潮流：Prefill-Decode 分离（PD Disaggregation）。
 
-![Prefill-Decode 分离示意](PD分离.png)
+{{< figure src="PD分离.png" alt="Prefill-Decode 分离" caption="图 9：Prefill / Decode 分离——两组实例各自运行，通过 KV Cache Transfer 传递中间状态。" >}}
 
 ### 5.1 DistServe 与 Splitwise：从时间维度到空间维度的解耦
 
@@ -238,7 +250,7 @@ Splitwise 进一步把这条思路推到“异构硬件”：prefill 是计算�
 
 在 2025 年 7 月的实测中，Mooncake 支撑 Kimi K2 在 128 张 H200 上做 PD 分离，实现 224k tokens/s prefill 吞吐 + 288k tokens/s decode 吞吐。
 
-![Mooncake KV Cache 架构示意](PD分离mooncake.png)
+{{< figure src="PD分离mooncake.png" alt="Mooncake 架构" caption="图 10：Mooncake 以 KV Cache 为中心的架构——Conductor 调度、分布式 KV 池与 RDMA 跨节点传输。" >}}
 
 ### 5.3 其他分布式 KV 系统：ChunkAttention、TraCT、Preble
 

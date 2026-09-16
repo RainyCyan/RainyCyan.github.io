@@ -5,7 +5,7 @@ tags: [KVCache, LLM, Inference, RecSys, Storage, RDMA]
 series: []
 featured: false
 description: "KV Cache 本质是一项用存储和网络换 GPU 算力的成本优化技术。本文梳理它在搜广推（GR / FM→VM / 搜索 doc）场景下的典型玩法、存储侧需求、一致性与防穿越设计，以及以 RDMA 直读直写 HDFS 为核心的存储架构与演进方向。"
-draft: false
+draft: true
 ShowToc: true
 TocOpen: true
 ---

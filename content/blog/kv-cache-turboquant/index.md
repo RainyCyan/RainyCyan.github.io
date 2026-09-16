@@ -6,7 +6,7 @@ tags: [LLM, Inference, KVCache, Quantization]
 series: []
 featured: false
 description: TurboQuant 通过随机旋转、最优标量量化和 QJL 残差补偿，在无需数据校准的前提下压缩 KV Cache，并兼顾重建误差与内积估计偏差。
-draft: false
+draft: true
 ShowToc: true
 TocOpen: true
 ---
